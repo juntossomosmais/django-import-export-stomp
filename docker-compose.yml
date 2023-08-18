@@ -14,6 +14,12 @@ services:
       - POSTGRES_USER=postgres
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -21,48 +27,45 @@ services:
       - 15672:15672
     volumes:
       - ./tests/resources/custom-rabbitmq-conf:/etc/rabbitmq/
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  app:
+  example:
     build: *dockerfile-dev-build
-    env_file: .env
     volumes:
       - .:/app
     ports:
-      - "${DJANGO_BIND_PORT}:${DJANGO_BIND_PORT}"
+      - "${DJANGO_BIND_PORT:-8080}:${DJANGO_BIND_PORT:-8080}"
     depends_on:
-      - db
-      - rabbitmq
-      - minio-client
-      - otel-collector
-      - opentelemetry-jaeger
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
     command:
       [
-        "./scripts/wait-for-it.sh",
-        "${DATABASE_HOST}:${DATABASE_PORT}",
-        "-t",
-        "120",
-        "--",
-        "./scripts/start-development.sh"
+        "./scripts/start-example.sh"
       ]
 
   integration-tests:
     build: *dockerfile-dev-build
-    env_file: .env
     volumes:
       - .:/app
     ports:
-      - "${DJANGO_BIND_PORT}:${DJANGO_BIND_PORT}"
+      - "${DJANGO_BIND_PORT:-8080}:${DJANGO_BIND_PORT:-8080}"
     depends_on:
-      - db
-      - rabbitmq
-      - minio-client
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
     command:
       [
-        "./scripts/wait-for-it.sh",
-        "${DATABASE_HOST}:${DATABASE_PORT}",
-        "-t",
-        "120",
-        "--",
         "./scripts/start-tests.sh"
       ]
 
@@ -87,20 +90,33 @@ services:
 
   minio:
     image: minio/minio:latest
-    env_file: .env
     ports:
       - "9000:9000"
       - "9001:9001"
     command: minio server /s3-folder --console-address 0.0.0.0:9001
     volumes:
       - s3-folder:/s3-folder
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
 
-  minio-client:
+  createbuckets:
     image: minio/mc
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./tests/resources/s3/source:/source
     entrypoint: >
-      /bin/sh -c " sleep 1; /usr/bin/mc config host add s3-folder http://minio:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY}; /usr/bin/mc rm -r --force s3-folder/${AWS_STORAGE_BUCKET_NAME}; /usr/bin/mc mb s3-folder/${AWS_STORAGE_BUCKET_NAME};  /usr/bin/mc policy -r set download s3-folder/${AWS_STORAGE_BUCKET_NAME}; exit 0; "
+      /bin/sh -c "
+      /usr/bin/mc config host add s3-folder http://minio:9000 root password;
+      /usr/bin/mc rm -r --force s3-folder/example;
+      /usr/bin/mc mb s3-folder/example;
+      /usr/bin/mc policy -r set download s3-folder/example;
+      exit 0;
+      "
 
 volumes:
   s3-folder: null
