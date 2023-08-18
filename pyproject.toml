@@ -6,8 +6,8 @@ authors = [
     "Nilton Frederico Teixeira <9078708+niltonfrederico@users.noreply.github.com>",
 ]
 license = "MIT"
-readme = "README.md"
-packages = [{ include = "django_import_export_stomp" }]
+readme = "README.rst"
+packages = [{ include = "import_export_stomp" }]
 
 [tool.poetry.dependencies]
 python = "^3.10"

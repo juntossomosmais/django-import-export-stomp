@@ -1,14 +1,13 @@
 import html2text
+
+from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import get_template
-from django.conf import settings
 from django.urls import reverse
 from import_export.formats.base_formats import DEFAULT_FORMATS
 
 DEFAULT_EXPORT_JOB_COMPLETION_MAIL_SUBJECT = "Django: Export job completed"
-DEFAULT_EXPORT_JOB_COMPLETION_MAIL_TEMPLATE = (
-    "email/export_job_completion.html"
-)
+DEFAULT_EXPORT_JOB_COMPLETION_MAIL_TEMPLATE = "email/export_job_completion.html"
 IMPORT_EXPORT_CELERY_EXCLUDED_FORMATS = getattr(
     settings,
     "IMPORT_EXPORT_CELERY_EXCLUDED_FORMATS",
@@ -25,11 +24,12 @@ def get_formats():
     ]
 
 
-def build_html_and_text_message(template_name, context={}):
+def build_html_and_text_message(template_name, context=None):
     """
     Render the given template with the context and returns
     the data in html and plain text format.
     """
+    context = context or {}
     template = get_template(template_name)
     html_message = template.render(context)
     text_message = html2text.html2text(html_message)
@@ -77,9 +77,7 @@ def send_export_job_completion_mail(export_job):
     template_name = get_export_job_mail_template()
     context = get_export_job_mail_context(export_job)
     context.update({"export_job": export_job})
-    html_message, text_message = build_html_and_text_message(
-        template_name, context
-    )
+    html_message, text_message = build_html_and_text_message(template_name, context)
     send_mail(
         subject=subject,
         message=text_message,

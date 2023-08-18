@@ -1,14 +1,14 @@
-from django.utils import timezone
 import json
+
 from uuid import UUID
 
-from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
 from django.shortcuts import redirect
-
-from .models import ExportJob
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from . import tasks
+from .models import ExportJob
 
 
 def run_import_job_action(modeladmin, request, queryset):
@@ -17,7 +17,7 @@ def run_import_job_action(modeladmin, request, queryset):
         tasks.run_import_job.delay(instance.pk, dry_run=False)
 
 
-run_import_job_action.short_description = _("Perform import")
+run_import_job_action.short_description = _("Perform import")  # type: ignore
 
 
 def run_import_job_action_dry(modeladmin, request, queryset):
@@ -26,7 +26,7 @@ def run_import_job_action_dry(modeladmin, request, queryset):
         tasks.run_import_job.delay(instance.pk, dry_run=True)
 
 
-run_import_job_action_dry.short_description = _("Perform dry import")
+run_import_job_action_dry.short_description = _("Perform dry import")  # type: ignore
 
 
 def run_export_job_action(modeladmin, request, queryset):
@@ -36,7 +36,7 @@ def run_export_job_action(modeladmin, request, queryset):
         tasks.run_export_job.delay(instance.pk)
 
 
-run_export_job_action.short_description = _("Run export job")
+run_export_job_action.short_description = _("Run export job")  # type: ignore
 
 
 def create_export_job_action(modeladmin, request, queryset):
@@ -64,4 +64,4 @@ def create_export_job_action(modeladmin, request, queryset):
     return redirect(rurl)
 
 
-create_export_job_action.short_description = _("Export with celery")
+create_export_job_action.short_description = _("Export with celery")  # type: ignore

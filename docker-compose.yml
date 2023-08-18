@@ -108,7 +108,7 @@ services:
       minio:
         condition: service_healthy
     volumes:
-      - ./tests/resources/s3/source:/source
+      - s3-folder:/s3-folder
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc config host add s3-folder http://minio:9000 root password;

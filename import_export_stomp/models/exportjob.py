@@ -1,15 +1,13 @@
 # Copyright (C) 2019 o.s. Auto*Mat
-from django.utils import timezone
 import json
 
 from author.decorators import with_author
-
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db import transaction
-from django.dispatch import receiver
-
 from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from ..fields import ImportExportFileField
@@ -126,9 +124,7 @@ class ExportJob(models.Model):
     def get_format_choices():
         """returns choices of available export formats"""
         return [
-            (f.CONTENT_TYPE, f().get_title())
-            for f in get_formats()
-            if f().can_export()
+            (f.CONTENT_TYPE, f().get_title()) for f in get_formats() if f().can_export()
         ]
 
 
