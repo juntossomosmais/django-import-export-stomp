@@ -1,0 +1,21 @@
+[run]
+omit =
+    .venv/*
+    .tox/*
+    .docs/*
+    .htmlcov/*
+    .junit/*
+    scripts/*
+    tests/*
+    */tests/*
+    *__init__.py
+    **/migrations/*.py
+    manage.py
+    **/wsgi.py
+    **/settings.py
+    **/url.py
+    **/seed.py
+    **/db_routing.py
+
+[report]
+show_missing = True
