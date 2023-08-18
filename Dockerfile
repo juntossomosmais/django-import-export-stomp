@@ -8,15 +8,14 @@ RUN useradd appuser \
 
 # Installs poetry and pip
 RUN pip install --upgrade pip && \
-    pip install poetry
+    pip install poetry && \
+    poetry config virtualenvs.create false --local
 
 # Copy dependency definition to cache
 COPY --chown=appuser poetry.lock pyproject.toml ./
 
 # Installs projects dependencies as a separate layer
-RUN poetry export -f requirements.txt -o requirements.txt && \
-    pip uninstall --yes poetry && \
-    pip install --require-hashes -r requirements.txt
+RUN poetry install --no-root
 
 COPY --chown=appuser . ./
 
