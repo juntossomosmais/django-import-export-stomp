@@ -1,25 +1,16 @@
-.. image:: https://img.shields.io/pypi/v/django-import-export-celery.svg
-   :target: https://pypi.org/project/django-import-export-celery/#history
-
-django-import-export-celery: process slow django imports and exports in celery
+django-import-export-stomp: process slow django imports and exports using [django-stomp](github.com/juntossomosmais/django-stomp)
 ==============================================================================
 
-django-import-export-celery helps you process long running imports and exports in celery.
+django-import-export-stomp helps you process long running imports and exports using [django-stomp](github.com/juntossomosmais/django-stomp).
 
 Basic installation
 ------------------
 
-1. `Set up celery <http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html>`__ to work with your project.
+1. `Set up django stomp <github.com/juntossomosmais/django-stomp>`__ to work with your project.
 
-2. Add ``'import_export_celery'`` to your ``INSTALLED_APPS`` settings variable
+2. Add ``'import_export_stomp'`` to your ``INSTALLED_APPS`` settings variable
 
 3. Add ``'author.middlewares.AuthorDefaultBackendMiddleware'`` to your ``MIDDLEWARE_CLASSES``
-
-4. Configure the location of your celery module setup
-
-    ::
-
-        IMPORT_EXPORT_CELERY_INIT_MODULE = "projectname.celery"
 
 
 Setting up imports with celery
@@ -29,7 +20,7 @@ A fully configured example project can be found in the example directory of this
 
 1. Perform the basic setup procedure described above.
 
-2.  Configure the IMPORT_EXPORT_CELERY_MODELS variable.
+2.  Configure the IMPORT_EXPORT_STOMP_MODELS variable.
 
     ::
 
@@ -38,7 +29,7 @@ A fully configured example project can be found in the example directory of this
             return WinnerResource
 
 
-        IMPORT_EXPORT_CELERY_MODELS = {
+        IMPORT_EXPORT_MODELS = {
             "Winner": {
                 'app_label': 'winners',
                 'model_name': 'Winner',
@@ -61,7 +52,7 @@ By default a dry run of the import is initiated when the import object is create
 Preforming an import
 --------------------
 
-You will find an example django application that uses django-import-export-celery for importing data. There are instructions for running the example application in the example directory's README file. Once you have it running, you can perform an import with the following steps.
+You will find an example django application that uses django-import-export-stomp for importing data. There are instructions for running the example application in the example directory's README file. Once you have it running, you can perform an import with the following steps.
 
 1. Navigate to the example applications admin page:
 
@@ -113,7 +104,7 @@ As with imports, a fully configured example project can be found in the `example
     ::
 
         from django.contrib import admin
-        from import_export_celery.admin_actions import create_export_job_action
+        from import_export.admin_actions import create_export_job_action
 
         from . import models
 
@@ -147,7 +138,7 @@ Performing exports with celery
 
 1. Perform the basic setup procedure described in the first section.
 
-2. Open up the object list for your model in django admin, select the objects you wish to export, and select the `Export with celery` admin action.
+2. Open up the object list for your model in django admin, select the objects you wish to export, and select the `Export with stomp` admin action.
 
 3. Select the file format and resource you want to use to export the data.
 
@@ -163,20 +154,20 @@ Excluding export file formats in the admin site
 
 All available file formats to export are taken from the `Tablib project <https://pypi.org/project/tablib/>`__.
 
-To exclude or disable file formats from the admin site, configure `IMPORT_EXPORT_CELERY_EXCLUDED_FORMATS` django settings variable. This variable is a list of format strings written in lower case.
+To exclude or disable file formats from the admin site, configure `IMPORT_EXPORT_STOMP_EXCLUDED_FORMATS` django settings variable. This variable is a list of format strings written in lower case.
 
     ::
 
-        IMPORT_EXPORT_CELERY_EXCLUDED_FORMATS = ["csv", "xls"]
+        IMPORT_EXPORT_STOMP_EXCLUDED_FORMATS = ["csv", "xls"]
 
 Customizing File Storage Backend
 --------------------------------
 
-Define a custom storage backend by adding the `IMPORT_EXPORT_CELERY_STORAGE` to your Django settings. For instance:
+Define a custom storage backend by adding the `IMPORT_EXPORT_STOMP_STORAGE` to your Django settings. For instance:
 
     ::
 
-        IMPORT_EXPORT_CELERY_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+        IMPORT_EXPORT_STOMP_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 Customizing email template for export job completion email
 ----------------------------------------------------------
@@ -190,7 +181,7 @@ By default this is the subject and template used to send the email
         Email template: 'email/export_job_completion.html'
 
 
-The default email template can be found `here <https://github.com/auto-mat/django-import-export-celery/blob/master/import_export_celery/templates/email/export_job_completion.html>`__
+The default email template can be found `here <https://github.com/auto-mat/django-import-export-stomp/blob/master/import_export_STOMP/templates/email/export_job_completion.html>`__
 
 The default email subject and template can be customized by overriding these values from django settings:-
 
@@ -217,18 +208,9 @@ The email template will get some context variables that you can use to customize
 For developers of this library
 ------------------------------
 
-You can enter a preconfigured dev environment by first running `make` and then launching `./develop.sh` to get into a docker compose environment packed with **redis**, **celery**, **postgres** and everything you need to run and test django-import-export-celery.
-
-Before submitting a PR please run `flake8` and (in the examples directory) `python3 manange.py test`.
-
-Please note, that you need to restart celery for changes to propogate to the workers. Do this with `docker-compose down celery`, `docker-compose up celery`.
-
-Commercial support
-------------------
-
-Commercial support is provided by `gradesta s.r.o <https://gradesta.com/support/>`_.
+TO BE INCLUDED
 
 Credits
 -------
 
-`django-import-export-celery` was developed by the Czech non-profit `auto*mat z.s. <https://auto-mat.cz>`_.
+`django-import-export-stomp` was developed by the Czech non-profit `auto*mat z.s. <https://auto-mat.cz>`_.

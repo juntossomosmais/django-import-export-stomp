@@ -1,0 +1,122 @@
+version: "3.9"
+
+# https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields
+x-build:
+  &dockerfile-dev-build
+  context: .
+  dockerfile: Dockerfile
+
+services:
+  db:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 15672:15672
+    volumes:
+      - ./tests/resources/custom-rabbitmq-conf:/etc/rabbitmq/
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  example:
+    build: *dockerfile-dev-build
+    volumes:
+      - .:/app
+    ports:
+      - "${DJANGO_BIND_PORT:-8080}:${DJANGO_BIND_PORT:-8080}"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
+    command:
+      [
+        "./scripts/start-example.sh"
+      ]
+
+  integration-tests:
+    build: *dockerfile-dev-build
+    volumes:
+      - .:/app
+    ports:
+      - "${DJANGO_BIND_PORT:-8080}:${DJANGO_BIND_PORT:-8080}"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
+    command:
+      [
+        "./scripts/start-tests.sh"
+      ]
+
+  sonar:
+    container_name: sonar
+    image: sonarqube:9-community
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    ports:
+      - "9000:9000"
+
+  sonar-cli:
+    container_name: sonar-cli
+    image: sonarsource/sonar-scanner-cli
+    working_dir: /api
+    environment:
+      - SONAR_LOGIN=admin
+      - SONAR_PASSWORD=test
+    volumes:
+      - .:/api
+    command: [ "sonar-scanner", "--debug" ]
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: minio server /s3-folder --console-address 0.0.0.0:9001
+    volumes:
+      - s3-folder:/s3-folder
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    volumes:
+      - s3-folder:/s3-folder
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add s3-folder http://minio:9000 root password;
+      /usr/bin/mc rm -r --force s3-folder/example;
+      /usr/bin/mc mb s3-folder/example;
+      /usr/bin/mc policy -r set download s3-folder/example;
+      exit 0;
+      "
+
+volumes:
+  s3-folder: null

@@ -1,13 +1,11 @@
-from django.test import TestCase, override_settings
-
-from import_export_celery.utils import (
-    get_export_job_mail_subject,
-    get_export_job_mail_template,
-    get_export_job_mail_context,
-    DEFAULT_EXPORT_JOB_COMPLETION_MAIL_SUBJECT,
-    DEFAULT_EXPORT_JOB_COMPLETION_MAIL_TEMPLATE,
-)
+from django.test import TestCase
+from django.test import override_settings
 from import_export_celery.models import ExportJob
+from import_export_celery.utils import DEFAULT_EXPORT_JOB_COMPLETION_MAIL_SUBJECT
+from import_export_celery.utils import DEFAULT_EXPORT_JOB_COMPLETION_MAIL_TEMPLATE
+from import_export_celery.utils import get_export_job_mail_context
+from import_export_celery.utils import get_export_job_mail_subject
+from import_export_celery.utils import get_export_job_mail_template
 
 
 class UtilsTestCases(TestCase):

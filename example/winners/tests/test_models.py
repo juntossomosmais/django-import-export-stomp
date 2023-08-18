@@ -1,12 +1,11 @@
 import os
-from django.test import TestCase
-from django.core.files.base import ContentFile
 
+from django.core.files.base import ContentFile
+from django.test import TestCase
 from import_export_celery.models.importjob import ImportJob
 
 
 class ImportJobTestCases(TestCase):
-
     def test_delete_file_on_job_delete(self):
         job = ImportJob.objects.create(
             file=ContentFile(b"", "file.csv"),
