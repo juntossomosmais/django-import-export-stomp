@@ -1,0 +1,106 @@
+version: "3.9"
+
+# https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields
+x-build:
+  &dockerfile-dev-build
+  context: .
+  dockerfile: Dockerfile
+
+services:
+  db:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 15672:15672
+    volumes:
+      - ./tests/resources/custom-rabbitmq-conf:/etc/rabbitmq/
+
+  app:
+    build: *dockerfile-dev-build
+    env_file: .env
+    volumes:
+      - .:/app
+    ports:
+      - "${DJANGO_BIND_PORT}:${DJANGO_BIND_PORT}"
+    depends_on:
+      - db
+      - rabbitmq
+      - minio-client
+      - otel-collector
+      - opentelemetry-jaeger
+    command:
+      [
+        "./scripts/wait-for-it.sh",
+        "${DATABASE_HOST}:${DATABASE_PORT}",
+        "-t",
+        "120",
+        "--",
+        "./scripts/start-development.sh"
+      ]
+
+  integration-tests:
+    build: *dockerfile-dev-build
+    env_file: .env
+    volumes:
+      - .:/app
+    ports:
+      - "${DJANGO_BIND_PORT}:${DJANGO_BIND_PORT}"
+    depends_on:
+      - db
+      - rabbitmq
+      - minio-client
+    command:
+      [
+        "./scripts/wait-for-it.sh",
+        "${DATABASE_HOST}:${DATABASE_PORT}",
+        "-t",
+        "120",
+        "--",
+        "./scripts/start-tests.sh"
+      ]
+
+  sonar:
+    container_name: sonar
+    image: sonarqube:9-community
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    ports:
+      - "9000:9000"
+
+  sonar-cli:
+    container_name: sonar-cli
+    image: sonarsource/sonar-scanner-cli
+    working_dir: /api
+    environment:
+      - SONAR_LOGIN=admin
+      - SONAR_PASSWORD=test
+    volumes:
+      - .:/api
+    command: [ "sonar-scanner", "--debug" ]
+
+  minio:
+    image: minio/minio:latest
+    env_file: .env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: minio server /s3-folder --console-address 0.0.0.0:9001
+    volumes:
+      - s3-folder:/s3-folder
+
+  minio-client:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c " sleep 1; /usr/bin/mc config host add s3-folder http://minio:9000 ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY}; /usr/bin/mc rm -r --force s3-folder/${AWS_STORAGE_BUCKET_NAME}; /usr/bin/mc mb s3-folder/${AWS_STORAGE_BUCKET_NAME};  /usr/bin/mc policy -r set download s3-folder/${AWS_STORAGE_BUCKET_NAME}; exit 0; "
+
+volumes:
+  s3-folder: null
