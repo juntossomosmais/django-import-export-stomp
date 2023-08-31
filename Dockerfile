@@ -1,10 +1,14 @@
 FROM python:3.10-slim
 
+# Git is required for pre-commit
+RUN apt update
+RUN apt install -y git
+
+# Creates application directory
 WORKDIR /app
 
 # Creates an appuser and change the ownership of the application's folder
-RUN useradd appuser \
-    && chown appuser ./
+RUN useradd appuser && chown appuser ./
 
 # Installs poetry and pip
 RUN pip install --upgrade pip && \
@@ -17,9 +21,5 @@ COPY --chown=appuser poetry.lock pyproject.toml ./
 # Installs projects dependencies as a separate layer
 RUN poetry install --no-root
 
+# Copies and chowns for the userapp on a single layer
 COPY --chown=appuser . ./
-
-EXPOSE 8080
-
-# Switching to the non-root appuser for security
-USER appuser
