@@ -19,8 +19,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - importexportstompnet
 
 
   rabbitmq:
@@ -34,8 +32,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - importexportstompnet
 
   example:
     build: *dockerfile-dev-build
@@ -54,8 +50,6 @@ services:
       [
         "./scripts/start-example.sh"
       ]
-    networks:
-      - importexportstompnet
 
   integration-tests:
     build: *dockerfile-dev-build
@@ -74,8 +68,6 @@ services:
       [
         "./scripts/start-tests.sh"
       ]
-    networks:
-      - importexportstompnet
 
   sonar:
     container_name: sonar
@@ -84,8 +76,6 @@ services:
       - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
     ports:
       - "9000:9000"
-    networks:
-      - importexportstompnet
 
   sonar-cli:
     container_name: sonar-cli
@@ -97,8 +87,6 @@ services:
     volumes:
       - .:/api
     command: [ "sonar-scanner", "--debug" ]
-    networks:
-      - importexportstompnet
 
   minio:
     image: minio/minio:latest
@@ -113,8 +101,6 @@ services:
       interval: 20s
       timeout: 10s
       retries: 3
-    networks:
-      - importexportstompnet
 
   createbuckets:
     image: minio/mc
@@ -134,6 +120,3 @@ services:
 
 volumes:
   s3-folder: null
-
-networks:
-  importexportstompnet:
