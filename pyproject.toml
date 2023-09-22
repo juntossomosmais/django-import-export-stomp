@@ -13,6 +13,7 @@ packages = [{ include = "import_export_stomp" }]
 python = "^3.10"
 django = ">=3.2"
 django-stomp = ">=5.2"
+django-import-export = "^3.3.1"
 
 
 [tool.poetry.group.dev.dependencies]
