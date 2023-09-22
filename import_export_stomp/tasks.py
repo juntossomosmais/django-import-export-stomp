@@ -2,8 +2,6 @@
 import logging
 import os
 
-from celery import shared_task
-from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.cache import cache
 from django.core.files.base import ContentFile
@@ -18,8 +16,6 @@ from .utils import send_export_job_completion_mail
 
 logger = logging.getLogger(__name__)
 
-log = get_task_logger(__name__)
-
 
 importables = getattr(settings, "IMPORT_EXPORT_CELERY_MODELS", {})
 
@@ -27,8 +23,7 @@ importables = getattr(settings, "IMPORT_EXPORT_CELERY_MODELS", {})
 def change_job_status(job, direction, job_status, dry_run=False):
     if dry_run:
         job_status = "[Dry run] " + job_status
-    else:
-        job_status = job_status
+
     cache.set(direction + "_job_status_%s" % job.pk, job_status)
     job.job_status = job_status
     job.save()
@@ -38,7 +33,6 @@ def get_format(job):
     for format in get_formats():
         if job.format == format.CONTENT_TYPE:
             return format()
-            break
 
 
 def _run_import_job(import_job, dry_run=True):
@@ -180,9 +174,8 @@ def _run_import_job(import_job, dry_run=True):
     import_job.save()
 
 
-@shared_task(bind=False)
 def run_import_job(pk, dry_run=True):
-    log.info(f"Importing {pk} dry-run {dry_run}")
+    logger.info("Importing %s dry-run %s", pk, dry_run)
     import_job = models.ImportJob.objects.get(pk=pk)
     try:
         _run_import_job(import_job, dry_run)
@@ -193,9 +186,8 @@ def run_import_job(pk, dry_run=True):
         return
 
 
-@shared_task(bind=False)
 def run_export_job(pk):
-    log.info("Exporting %s" % pk)
+    logger.info("Exporting %s", pk)
     export_job = models.ExportJob.objects.get(pk=pk)
     resource_class = export_job.get_resource_class()
     queryset = export_job.get_queryset()
@@ -220,18 +212,17 @@ def run_export_job(pk):
     resource = Resource(export_job=export_job)
 
     data = resource.export(queryset)
-    format = get_format(export_job)
-    serialized = format.export_data(data)
+    _format = get_format(export_job)
+    serialized = _format.export_data(data)
     change_job_status(export_job, "export", "Export complete")
-    filename = "{app}-{model}-{date}.{extension}".format(
+    filename = "{app}-{model}-{date}.{extension}"._format(
         app=export_job.app_label,
         model=export_job.model,
         date=str(timezone.now()),
-        extension=format.get_extension(),
+        extension=_format.get_extension(),
     )
-    if not format.is_binary():
+    if not _format.is_binary():
         serialized = serialized.encode("utf8")
     export_job.file.save(filename, ContentFile(serialized))
     if export_job.email_on_completion:
         send_export_job_completion_mail(export_job)
-    return
