@@ -255,6 +255,19 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-author"
+version = "1.2.0"
+description = "Add special User ForeignKey fields which update automatically"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-author-1.2.0.tar.gz", hash = "sha256:0c45d986cfe5eb856e968e2c88b552854d3d4e0b69bbca578c6bb5aae06cbd09"},
+]
+
+[package.dependencies]
+setuptools-git = "*"
+
+[[package]]
 name = "django-import-export"
 version = "3.3.1"
 description = "Django application and library for importing and exporting data with included admin integration."
@@ -383,6 +396,17 @@ flake8 = ">=3.0.0"
 
 [package.extras]
 dev = ["coverage", "hypothesis", "hypothesmith (>=0.2)", "pre-commit", "pytest", "tox"]
+
+[[package]]
+name = "html2text"
+version = "2020.1.16"
+description = "Turn HTML into equivalent Markdown-structured text."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "html2text-2020.1.16-py3-none-any.whl", hash = "sha256:c7c629882da0cf377d66f073329ccf34a12ed2adf0169b9285ae4e63ef54c82b"},
+    {file = "html2text-2020.1.16.tar.gz", hash = "sha256:e296318e16b059ddb97f7a8a1d6a5c1d7af4544049a01e261731d2d5cc277bbb"},
+]
 
 [[package]]
 name = "icdiff"
@@ -965,6 +989,17 @@ testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8-2020", "ini2toml[l
 testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
+name = "setuptools-git"
+version = "1.2"
+description = "Setuptools revision control system plugin for Git"
+optional = false
+python-versions = "*"
+files = [
+    {file = "setuptools-git-1.2.tar.gz", hash = "sha256:ff64136da01aabba76ae88b050e7197918d8b2139ccbf6144e14d472b9c40445"},
+    {file = "setuptools_git-1.2-py2.py3-none-any.whl", hash = "sha256:e7764dccce7d97b4b5a330d7b966aac6f9ac026385743fd6cedad553f2494cfa"},
+]
+
+[[package]]
 name = "sqlparse"
 version = "0.4.4"
 description = "A non-validating SQL parser."
@@ -1137,4 +1172,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "665aeb78eaa3d717929d26b47502e6755700130c275350a4623d0d9fe37346d3"
+content-hash = "ddfdc1d512dcf9958ba9e927e694874ca935f4198c06286029db70e1295d5a57"
