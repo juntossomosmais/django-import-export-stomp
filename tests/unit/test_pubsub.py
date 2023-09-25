@@ -5,6 +5,11 @@ from typing import Dict
 
 import pytest
 
+from model_bakery import baker
+
+from import_export_stomp.models import ExportJob
+from import_export_stomp.models import ImportJob
+from import_export_stomp.pubsub import get_job_object
 from import_export_stomp.pubsub import validate_payload
 from tests.utils import create_payload
 
@@ -71,3 +76,32 @@ class TestValidatePayload:
         payload, _, _ = create_payload(data)
         with context():
             validate_payload(payload)
+
+
+@pytest.mark.django_db
+class TestGetJobObject:
+    def test_should_correct_fetch_import_job(self):
+        import_job = baker.make(ImportJob)
+        payload, _, _ = create_payload(
+            {"action": "import", "job_id": str(import_job.pk)}
+        )
+
+        assert get_job_object(payload).pk == import_job.pk
+
+    def test_should_correct_fetch_export_job(self):
+        export_job = baker.make(ExportJob)
+        payload, _, _ = create_payload(
+            {"action": "export", "job_id": str(export_job.pk)}
+        )
+
+        assert get_job_object(payload).pk == export_job.pk
+
+    def test_should_raise_does_not_exists_when_import_job_does_not_exists(self):
+        payload, _, _ = create_payload({"action": "import", "job_id": "9999"})
+        with pytest.raises(ImportJob.DoesNotExist):
+            get_job_object(payload)
+
+    def test_should_raise_does_not_exists_when_export_job_does_not_exists(self):
+        payload, _, _ = create_payload({"action": "export", "job_id": "9999"})
+        with pytest.raises(ExportJob.DoesNotExist):
+            get_job_object(payload)

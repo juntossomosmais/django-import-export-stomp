@@ -1,6 +1,14 @@
+import logging
+
+from typing import Union
 from uuid import UUID
 
 from django_stomp.services.consumer import Payload
+
+from import_export_stomp.models import ExportJob
+from import_export_stomp.models import ImportJob
+
+logger = logging.getLogger(__name__)
 
 ACTIONS = ("import", "export")
 
@@ -18,8 +26,15 @@ def validate_payload(payload: Payload):
         raise AssertionError("'job_id' is not a valid UUID.") from ValueError
 
 
-def get_job_object(payload: Payload):
-    ...
+def get_job_object(payload: Payload) -> Union[ImportJob, ExportJob]:
+    filters = {
+        "pk": payload.body["job_id"],
+    }
+    return (
+        ImportJob.objects.get(**filters | {"imported__isnull": True})
+        if payload.body["action"] == "import"
+        else ExportJob.objects.get(**filters)
+    )
 
 
 def consumer(payload: Payload):
@@ -30,8 +45,11 @@ def consumer(payload: Payload):
     }
     """
 
-    # Validate payload
-
-    # Select which action to run
+    try:
+        validate_payload(payload)
+    except AssertionError as exc:
+        logger.warning(str(exc))
+        # Since the error is unrecoverable we will only ack
+        return payload.ack()
 
     # Run action and ack
