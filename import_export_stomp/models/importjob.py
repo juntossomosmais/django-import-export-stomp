@@ -2,6 +2,8 @@
 
 import logging
 
+from functools import partial
+
 from author.decorators import with_author
 from django.db import models
 from django.db import transaction
@@ -13,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from import_export.formats.base_formats import DEFAULT_FORMATS
 
 from import_export_stomp.fields import ImportExportFileField
+from import_export_stomp.utils import send_job_message_to_queue
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +92,9 @@ def importjob_post_save(sender, instance, **kwargs):
     if not instance.processing_initiated:
         instance.processing_initiated = timezone.now()
         instance.save()
-        transaction.on_commit(lambda: None)
+        transaction.on_commit(
+            partial(send_job_message_to_queue, action="import", job_id=instance.pk)
+        )
 
 
 @receiver(post_delete, sender=ImportJob)
@@ -101,5 +106,5 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         try:
             instance.file.delete()
         except Exception as e:
-            logger.error(f"Some error occurred while deleting ImportJob file: {e}")
+            logger.error("Some error occurred while deleting ImportJob file: %s", e)
         ImportJob.objects.filter(id=instance.id).delete()

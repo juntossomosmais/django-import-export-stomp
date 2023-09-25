@@ -1,16 +1,30 @@
+from typing import Literal
+from typing import Union
+from uuid import uuid4
+
 import html2text
 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.urls import reverse
+from django_stomp.builder import build_publisher
+from django_stomp.services.producer import auto_open_close_connection
+from django_stomp.services.producer import do_inside_transaction
 from import_export.formats.base_formats import DEFAULT_FORMATS
+
+IMPORT_EXPORT_STOMP_PROCESSING_QUEUE = getattr(
+    settings,
+    "IMPORT_EXPORT_STOMP_PROCESSING_QUEUE",
+    "django-import-export-stomp-runner",
+)
+
 
 DEFAULT_EXPORT_JOB_COMPLETION_MAIL_SUBJECT = "Django: Export job completed"
 DEFAULT_EXPORT_JOB_COMPLETION_MAIL_TEMPLATE = "email/export_job_completion.html"
-IMPORT_EXPORT_CELERY_EXCLUDED_FORMATS = getattr(
+IMPORT_EXPORT_STOMP_EXCLUDED_FORMATS = getattr(
     settings,
-    "IMPORT_EXPORT_CELERY_EXCLUDED_FORMATS",
+    "IMPORT_EXPORT_STOMP_EXCLUDED_FORMATS",
     [],
 )
 
@@ -20,7 +34,7 @@ def get_formats():
         format
         for format in DEFAULT_FORMATS
         if format.TABLIB_MODULE.split(".")[-1].strip("_")
-        not in IMPORT_EXPORT_CELERY_EXCLUDED_FORMATS
+        not in IMPORT_EXPORT_STOMP_EXCLUDED_FORMATS
     ]
 
 
@@ -85,3 +99,15 @@ def send_export_job_completion_mail(export_job):
         from_email=settings.SERVER_EMAIL,
         recipient_list=[export_job.updated_by.email],
     )
+
+
+def send_job_message_to_queue(
+    action: Union[Literal["import"], Literal["export"]], job_id: int
+) -> None:
+    publisher = build_publisher(f"django-import-export-stomp-{str(uuid4())}")
+
+    with auto_open_close_connection(publisher), do_inside_transaction(publisher):
+        publisher.send(
+            queue=settings.IMPORT_EXPORT_STOMP_PROCESSING_QUEUE,
+            body={"action": action, "job_id": str(job_id)},
+        )
