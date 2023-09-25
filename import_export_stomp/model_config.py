@@ -1,8 +1,9 @@
-from celery.utils.log import get_task_logger
+import logging
+
 from django.apps import apps
 from import_export.resources import modelresource_factory
 
-log = get_task_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class ModelConfig:
