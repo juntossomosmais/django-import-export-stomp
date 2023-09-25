@@ -42,11 +42,10 @@ repos:
       - id: isort
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.950
+    rev: v1.4.1
     hooks:
       - id: mypy
         additional_dependencies:
           - types-requests
           - types-python-dateutil
-          - django-stubs
         exclude: tests/

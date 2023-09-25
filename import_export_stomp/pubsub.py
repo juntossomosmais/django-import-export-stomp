@@ -1,5 +1,7 @@
 import logging
 
+from typing import Callable
+from typing import Tuple
 from typing import Union
 from uuid import UUID
 
@@ -7,6 +9,8 @@ from django_stomp.services.consumer import Payload
 
 from import_export_stomp.models import ExportJob
 from import_export_stomp.models import ImportJob
+from import_export_stomp.tasks import run_export_job
+from import_export_stomp.tasks import run_import_job
 
 logger = logging.getLogger(__name__)
 
@@ -26,14 +30,16 @@ def validate_payload(payload: Payload):
         raise AssertionError("'job_id' is not a valid UUID.") from ValueError
 
 
-def get_job_object(payload: Payload) -> Union[ImportJob, ExportJob]:
+def get_job_object_and_runner(
+    payload: Payload,
+) -> Union[Tuple[ImportJob, Callable], Tuple[ExportJob, Callable]]:
     filters = {
         "pk": payload.body["job_id"],
     }
     return (
-        ImportJob.objects.get(**filters | {"imported__isnull": True})
+        (ImportJob.objects.get(**filters | {"imported__isnull": True}), run_import_job)
         if payload.body["action"] == "import"
-        else ExportJob.objects.get(**filters)
+        else (ExportJob.objects.get(**filters), run_export_job)
     )
 
 
@@ -52,4 +58,7 @@ def consumer(payload: Payload):
         # Since the error is unrecoverable we will only ack
         return payload.ack()
 
-    # Run action and ack
+    job, runner = get_job_object_and_runner(payload)
+    runner(job)
+
+    return payload.ack()

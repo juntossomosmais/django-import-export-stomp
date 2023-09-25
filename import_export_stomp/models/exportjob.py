@@ -10,9 +10,8 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from ..fields import ImportExportFileField
-from ..tasks import run_export_job
-from ..utils import get_formats
+from import_export_stomp.fields import ImportExportFileField
+from import_export_stomp.utils import get_formats
 
 
 @with_author
@@ -133,4 +132,4 @@ def exportjob_post_save(sender, instance, **kwargs):
     if instance.resource and not instance.processing_initiated:
         instance.processing_initiated = timezone.now()
         instance.save()
-        transaction.on_commit(lambda: run_export_job.delay(instance.pk))
+        transaction.on_commit(lambda: None)

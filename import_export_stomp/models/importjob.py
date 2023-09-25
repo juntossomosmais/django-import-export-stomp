@@ -3,7 +3,6 @@
 import logging
 
 from author.decorators import with_author
-from django.conf import settings
 from django.db import models
 from django.db import transaction
 from django.db.models.signals import post_delete
@@ -13,8 +12,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from import_export.formats.base_formats import DEFAULT_FORMATS
 
-from ..fields import ImportExportFileField
-from ..tasks import run_import_job
+from import_export_stomp.fields import ImportExportFileField
 
 logger = logging.getLogger(__name__)
 
@@ -91,12 +89,7 @@ def importjob_post_save(sender, instance, **kwargs):
     if not instance.processing_initiated:
         instance.processing_initiated = timezone.now()
         instance.save()
-        transaction.on_commit(
-            lambda: run_import_job.delay(
-                instance.pk,
-                dry_run=getattr(settings, "IMPORT_DRY_RUN_FIRST_TIME", True),
-            )
-        )
+        transaction.on_commit(lambda: None)
 
 
 @receiver(post_delete, sender=ImportJob)

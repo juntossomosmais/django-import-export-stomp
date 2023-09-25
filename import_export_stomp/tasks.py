@@ -9,10 +9,11 @@ from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
-from . import models
-from .model_config import ModelConfig
-from .utils import get_formats
-from .utils import send_export_job_completion_mail
+from import_export_stomp.model_config import ModelConfig
+from import_export_stomp.models import ExportJob
+from import_export_stomp.models import ImportJob
+from import_export_stomp.utils import get_formats
+from import_export_stomp.utils import send_export_job_completion_mail
 
 logger = logging.getLogger(__name__)
 
@@ -174,9 +175,8 @@ def _run_import_job(import_job, dry_run=True):
     import_job.save()
 
 
-def run_import_job(pk, dry_run=True):
-    logger.info("Importing %s dry-run %s", pk, dry_run)
-    import_job = models.ImportJob.objects.get(pk=pk)
+def run_import_job(import_job: ImportJob, dry_run: bool = True):
+    logger.info("Importing %s dry-run %s", import_job.pk, dry_run)
     try:
         _run_import_job(import_job, dry_run)
     except Exception as e:
@@ -186,14 +186,13 @@ def run_import_job(pk, dry_run=True):
         return
 
 
-def run_export_job(pk):
-    logger.info("Exporting %s", pk)
-    export_job = models.ExportJob.objects.get(pk=pk)
+def run_export_job(export_job: ExportJob):
+    logger.info("Exporting %s", export_job.pk)
     resource_class = export_job.get_resource_class()
     queryset = export_job.get_queryset()
     qs_len = len(queryset)
 
-    class Resource(resource_class):
+    class Resource(resource_class):  # type:ignore
         def __init__(self, export_job, *args, **kwargs):
             self.row_number = 1
             self.export_job = export_job
@@ -215,7 +214,7 @@ def run_export_job(pk):
     _format = get_format(export_job)
     serialized = _format.export_data(data)
     change_job_status(export_job, "export", "Export complete")
-    filename = "{app}-{model}-{date}.{extension}"._format(
+    filename = "{app}-{model}-{date}.{extension}".format(
         app=export_job.app_label,
         model=export_job.model,
         date=str(timezone.now()),
