@@ -2,13 +2,17 @@ from contextlib import nullcontext
 from functools import partial
 from typing import Callable
 from typing import Dict
+from unittest import mock
 
 import pytest
 
 from model_bakery import baker
 
+import import_export_stomp.pubsub
+
 from import_export_stomp.models import ExportJob
 from import_export_stomp.models import ImportJob
+from import_export_stomp.pubsub import consumer
 from import_export_stomp.pubsub import get_job_object_and_runner
 from import_export_stomp.pubsub import validate_payload
 from import_export_stomp.tasks import run_export_job
@@ -55,21 +59,21 @@ class TestValidatePayload:
             (
                 {"action": "import", "job_id": "invalid"},
                 partial(
-                    pytest.raises, AssertionError, match="'job_id' is not a valid UUID."
+                    pytest.raises, AssertionError, match="'job_id' is not a number."
                 ),
             ),
             (
                 {"action": "export", "job_id": "invalid"},
                 partial(
-                    pytest.raises, AssertionError, match="'job_id' is not a valid UUID."
+                    pytest.raises, AssertionError, match="'job_id' is not a number."
                 ),
             ),
             (
-                {"action": "import", "job_id": "03d52eda-1394-4bf1-aca2-a61d8b8be429"},
+                {"action": "import", "job_id": "12345"},
                 nullcontext,
             ),
             (
-                {"action": "export", "job_id": "03d52eda-1394-4bf1-aca2-a61d8b8be429"},
+                {"action": "export", "job_id": "12345"},
                 nullcontext,
             ),
         ),
@@ -113,3 +117,49 @@ class TestGetJobObject:
         payload, _, _ = create_payload({"action": "export", "job_id": "9999"})
         with pytest.raises(ExportJob.DoesNotExist):
             get_job_object_and_runner(payload)
+
+
+@pytest.mark.django_db
+class TestConsumer:
+    def test_consumer_should_ack_if_invalid_payload(self):
+        payload, ack, nack = create_payload({"invalid": "payload"})
+
+        consumer(payload)
+
+        ack.assert_called_once()
+        nack.assert_not_called()
+
+    def test_consumer_should_raise_exception_if_job_does_not_exists(self):
+        payload, ack, nack = create_payload({"action": "import", "job_id": "9999"})
+
+        with pytest.raises(ImportJob.DoesNotExist):
+            consumer(payload)
+
+        ack.assert_not_called()
+        nack.assert_not_called()
+
+    @mock.patch.object(import_export_stomp.pubsub, "run_import_job")
+    def test_consumer_should_call_run_import_job(self, mock_import_job: mock.MagicMock):
+        import_job = baker.make(ImportJob)
+        payload, ack, nack = create_payload(
+            {"action": "import", "job_id": str(import_job.pk)}
+        )
+
+        consumer(payload)
+
+        ack.assert_called_once()
+        nack.assert_not_called()
+        mock_import_job.assert_called_once()
+
+    @mock.patch.object(import_export_stomp.pubsub, "run_export_job")
+    def test_consumer_should_call_run_export_job(self, mock_export_job: mock.MagicMock):
+        export_job = baker.make(ExportJob)
+        payload, ack, nack = create_payload(
+            {"action": "export", "job_id": str(export_job.pk)}
+        )
+
+        consumer(payload)
+
+        ack.assert_called_once()
+        nack.assert_not_called()
+        mock_export_job.assert_called_once()

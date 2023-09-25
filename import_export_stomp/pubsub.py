@@ -3,7 +3,6 @@ import logging
 from typing import Callable
 from typing import Tuple
 from typing import Union
-from uuid import UUID
 
 from django_stomp.services.consumer import Payload
 
@@ -23,11 +22,7 @@ def validate_payload(payload: Payload):
         payload.body["action"] in ACTIONS
     ), "Action value needs to be 'import' or 'export'."
     assert "job_id" in payload.body, "Payload needs to have 'job_id' key set."
-
-    try:
-        UUID(payload.body["job_id"])
-    except ValueError:
-        raise AssertionError("'job_id' is not a valid UUID.") from ValueError
+    assert payload.body["job_id"].isnumeric(), "'job_id' is not a number."
 
 
 def get_job_object_and_runner(
