@@ -13,6 +13,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.sites",
+    "author",
+    "import_export_stomp",
 ]
 
 SITE_ID = 1

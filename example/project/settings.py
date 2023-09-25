@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "winners",
     "import_export_celery",
     "import_export",
+    "author",
 ]
 
 MIDDLEWARE = [

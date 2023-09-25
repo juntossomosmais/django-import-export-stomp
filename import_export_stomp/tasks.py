@@ -2,8 +2,6 @@
 import logging
 import os
 
-from celery import shared_task
-from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.cache import cache
 from django.core.files.base import ContentFile
@@ -17,8 +15,6 @@ from .utils import get_formats
 from .utils import send_export_job_completion_mail
 
 logger = logging.getLogger(__name__)
-
-log = get_task_logger(__name__)
 
 
 importables = getattr(settings, "IMPORT_EXPORT_CELERY_MODELS", {})
@@ -107,9 +103,7 @@ def _run_import_job(import_job, dry_run=True):
         summary += '<meta charset="utf-8">'
         summary += "</head>"
         summary += "<body>"
-        summary += (  # TODO refactor the existing template so we can use it for this
-            '<table  border="1">'
-        )
+        summary += '<table  border="1">'  # TODO refactor the existing template so we can use it for this
         # https://github.com/django-import-export/django-import-export/blob/6575c3e1d89725701e918696fbc531aeb192a6f7/import_export/templates/admin/import_export/import.html
         if not result.invalid_rows and not skip_diff:
             cols = lambda row: "</td><td>".join([field for field in row.diff])  # noqa
@@ -131,9 +125,9 @@ def _run_import_job(import_job, dry_run=True):
                 + "</tr>"
             )
         else:
-            cols = lambda row: "</td><td>".join(  # noqa
+            cols = lambda row: "</td><td>".join(
                 [str(field) for field in row.values]
-            )
+            )  # noqa
             cols_error = lambda row: "".join(  # noqa
                 [
                     "<mark>"
@@ -180,9 +174,8 @@ def _run_import_job(import_job, dry_run=True):
     import_job.save()
 
 
-@shared_task(bind=False)
 def run_import_job(pk, dry_run=True):
-    log.info(f"Importing {pk} dry-run {dry_run}")
+    logger.info(f"Importing {pk} dry-run {dry_run}")
     import_job = models.ImportJob.objects.get(pk=pk)
     try:
         _run_import_job(import_job, dry_run)
@@ -193,9 +186,8 @@ def run_import_job(pk, dry_run=True):
         return
 
 
-@shared_task(bind=False)
 def run_export_job(pk):
-    log.info("Exporting %s" % pk)
+    logger.info("Exporting %s" % pk)
     export_job = models.ExportJob.objects.get(pk=pk)
     resource_class = export_job.get_resource_class()
     queryset = export_job.get_queryset()

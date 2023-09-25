@@ -75,6 +75,7 @@ class ImportJob(models.Model):
     class Meta:
         verbose_name = _("Import job")
         verbose_name_plural = _("Import jobs")
+        app_label = "import_export_stomp"
 
     @staticmethod
     def get_format_choices():

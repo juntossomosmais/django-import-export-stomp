@@ -48,5 +48,4 @@ repos:
         additional_dependencies:
           - types-requests
           - types-python-dateutil
-          - django-stubs
         exclude: tests/

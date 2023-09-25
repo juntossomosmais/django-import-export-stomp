@@ -84,6 +84,7 @@ class ExportJob(models.Model):
     class Meta:
         verbose_name = _("Export job")
         verbose_name_plural = _("Export jobs")
+        app_label = "import_export_stomp"
 
     def get_resource_class(self):
         if self.resource:
