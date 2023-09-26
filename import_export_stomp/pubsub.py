@@ -40,6 +40,9 @@ def get_job_object_and_runner(
 
 def consumer(payload: Payload):
     """
+    Consumer that processes both import/export jobs.
+
+    Expected payload example:
     {
         "action": "import",
         "job_id": "9734b8b2-598d-4925-87da-20d453cab9d8"
