@@ -5,9 +5,8 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("import_export_celery", "0004_exportjob_email_on_completion"),
+        ("import_export_stomp", "0004_exportjob_email_on_completion"),
     ]
 
     operations = [

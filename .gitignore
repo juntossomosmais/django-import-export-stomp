@@ -8,7 +8,7 @@ example/django-import-export-celery-import-change-summaries/
 example/django-import-export-celery-import-jobs/
 example/django-import-export-celery-export-jobs/
 pyenv/
-django_import_export_celery.egg-info/
+django_import_export_stomp.egg-info/
 db/
 .idea/
 

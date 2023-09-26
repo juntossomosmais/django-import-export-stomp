@@ -8,10 +8,9 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("import_export_celery", "0002_auto_20190923_1132"),
+        ("import_export_stomp", "0002_auto_20190923_1132"),
     ]
 
     operations = [
