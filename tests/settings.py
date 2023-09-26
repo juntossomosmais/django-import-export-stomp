@@ -4,6 +4,7 @@ from logging import Formatter
 from pathlib import Path
 
 from import_export_stomp.apps import ImportExportStompConfig
+from import_export_stomp.utils import resource_importer
 from tests.resources.fake_app.apps import FakeAppConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -112,11 +113,12 @@ LOGGING = {
 
 USE_TZ = False
 
-
-# IMPORT_EXPORT_STOMP_MODELS = {
-#     "Comprovantes": {
-#         "app_label": "receipts",
-#         "model_name": "Receipt",
-#         "resource": resource_importer("receipts.resources.ReceiptResource"),
-#     }
-# }
+IMPORT_EXPORT_STOMP_MODELS = {
+    "Test": {
+        "app_label": "fake_app",
+        "model_name": "FakeModel",
+        "resource": resource_importer(
+            "tests.resources.fake_app.resources.FakeResource"
+        ),
+    }
+}

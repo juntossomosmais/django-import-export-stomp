@@ -21,6 +21,8 @@ def validate_payload(payload: Payload):
     assert (
         payload.body["action"] in ACTIONS
     ), "Action value needs to be 'import' or 'export'."
+    assert "dry_run" in payload.body, "Payload needs to have 'dry_run' key set."
+    assert isinstance(payload.body["dry_run"], bool), "'dry_run' is not a boolean."
     assert "job_id" in payload.body, "Payload needs to have 'job_id' key set."
     assert payload.body["job_id"].isnumeric(), "'job_id' is not a number."
 
@@ -45,6 +47,7 @@ def consumer(payload: Payload):
     Expected payload example:
     {
         "action": "import",
+        "dry_run": True,
         "job_id": "9734b8b2-598d-4925-87da-20d453cab9d8"
     }
     """
@@ -57,6 +60,6 @@ def consumer(payload: Payload):
         return payload.ack()
 
     job, runner = get_job_object_and_runner(payload)
-    runner(job)
+    runner(job, dry_run=payload.body["dry_run"])
 
     return payload.ack()

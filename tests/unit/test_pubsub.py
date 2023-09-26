@@ -53,27 +53,41 @@ class TestValidatePayload:
                 partial(
                     pytest.raises,
                     AssertionError,
-                    match="Payload needs to have 'job_id' key set.",
+                    match="Payload needs to have 'dry_run' key set.",
                 ),
             ),
             (
-                {"action": "import", "job_id": "invalid"},
+                {"action": "import", "job_id": "123"},
+                partial(
+                    pytest.raises,
+                    AssertionError,
+                    match="Payload needs to have 'dry_run' key set.",
+                ),
+            ),
+            (
+                {"action": "import", "dry_run": "True", "job_id": "123"},
+                partial(
+                    pytest.raises, AssertionError, match="'dry_run' is not a boolean."
+                ),
+            ),
+            (
+                {"action": "import", "dry_run": True, "job_id": "invalid"},
                 partial(
                     pytest.raises, AssertionError, match="'job_id' is not a number."
                 ),
             ),
             (
-                {"action": "export", "job_id": "invalid"},
+                {"action": "export", "dry_run": True, "job_id": "invalid"},
                 partial(
                     pytest.raises, AssertionError, match="'job_id' is not a number."
                 ),
             ),
             (
-                {"action": "import", "job_id": "12345"},
+                {"action": "import", "dry_run": True, "job_id": "12345"},
                 nullcontext,
             ),
             (
-                {"action": "export", "job_id": "12345"},
+                {"action": "export", "dry_run": True, "job_id": "12345"},
                 nullcontext,
             ),
         ),
@@ -89,7 +103,7 @@ class TestGetJobObject:
     def test_should_correct_fetch_import_job(self):
         import_job = baker.make(ImportJob)
         payload, _, _ = create_payload(
-            {"action": "import", "job_id": str(import_job.pk)}
+            {"action": "import", "dry_run": True, "job_id": str(import_job.pk)}
         )
 
         job, runner = get_job_object_and_runner(payload)
@@ -100,7 +114,7 @@ class TestGetJobObject:
     def test_should_correct_fetch_export_job(self):
         export_job = baker.make(ExportJob)
         payload, _, _ = create_payload(
-            {"action": "export", "job_id": str(export_job.pk)}
+            {"action": "export", "dry_run": True, "job_id": str(export_job.pk)}
         )
 
         job, runner = get_job_object_and_runner(payload)
@@ -109,12 +123,16 @@ class TestGetJobObject:
         assert runner == run_export_job
 
     def test_should_raise_does_not_exists_when_import_job_does_not_exists(self):
-        payload, _, _ = create_payload({"action": "import", "job_id": "9999"})
+        payload, _, _ = create_payload(
+            {"action": "import", "dry_run": True, "job_id": "9999"}
+        )
         with pytest.raises(ImportJob.DoesNotExist):
             get_job_object_and_runner(payload)
 
     def test_should_raise_does_not_exists_when_export_job_does_not_exists(self):
-        payload, _, _ = create_payload({"action": "export", "job_id": "9999"})
+        payload, _, _ = create_payload(
+            {"action": "export", "dry_run": True, "job_id": "9999"}
+        )
         with pytest.raises(ExportJob.DoesNotExist):
             get_job_object_and_runner(payload)
 
@@ -130,7 +148,9 @@ class TestConsumer:
         nack.assert_not_called()
 
     def test_consumer_should_raise_exception_if_job_does_not_exists(self):
-        payload, ack, nack = create_payload({"action": "import", "job_id": "9999"})
+        payload, ack, nack = create_payload(
+            {"action": "import", "dry_run": True, "job_id": "9999"}
+        )
 
         with pytest.raises(ImportJob.DoesNotExist):
             consumer(payload)
@@ -142,7 +162,7 @@ class TestConsumer:
     def test_consumer_should_call_run_import_job(self, mock_import_job: mock.MagicMock):
         import_job = baker.make(ImportJob)
         payload, ack, nack = create_payload(
-            {"action": "import", "job_id": str(import_job.pk)}
+            {"action": "import", "dry_run": True, "job_id": str(import_job.pk)}
         )
 
         consumer(payload)
@@ -155,7 +175,7 @@ class TestConsumer:
     def test_consumer_should_call_run_export_job(self, mock_export_job: mock.MagicMock):
         export_job = baker.make(ExportJob)
         payload, ack, nack = create_payload(
-            {"action": "export", "job_id": str(export_job.pk)}
+            {"action": "export", "dry_run": True, "job_id": str(export_job.pk)}
         )
 
         consumer(payload)
