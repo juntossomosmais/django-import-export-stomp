@@ -6,7 +6,8 @@ from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 
 from import_export_stomp import admin_actions
-from import_export_stomp import models
+from import_export_stomp.models import ExportJob
+from import_export_stomp.models import ImportJob
 
 
 class JobWithStatusMixin:
@@ -23,7 +24,7 @@ class ImportJobForm(forms.ModelForm):
     model = forms.ChoiceField(label=_("Name of model to import to"))
 
     class Meta:
-        model = models.ImportJob
+        model = ImportJob
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
@@ -36,7 +37,7 @@ class ImportJobForm(forms.ModelForm):
         )
 
 
-@admin.register(models.ImportJob)
+@admin.register(ImportJob)
 class ImportJobAdmin(JobWithStatusMixin, admin.ModelAdmin):
     direction = "import"
     form = ImportJobForm
@@ -70,7 +71,7 @@ class ImportJobAdmin(JobWithStatusMixin, admin.ModelAdmin):
 
 class ExportJobForm(forms.ModelForm):
     class Meta:
-        model = models.ExportJob
+        model = ExportJob
         exclude = ("site_of_origin",)
 
     def __init__(self, *args, **kwargs):
@@ -83,7 +84,7 @@ class ExportJobForm(forms.ModelForm):
         )
 
 
-@admin.register(models.ExportJob)
+@admin.register(ExportJob)
 class ExportJobAdmin(JobWithStatusMixin, admin.ModelAdmin):
     direction = "export"
     form = ExportJobForm

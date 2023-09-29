@@ -5,10 +5,9 @@ import pytest
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 
-from import_export_stomp import admin_actions
 from import_export_stomp.admin import ImportJobAdmin
-from import_export_stomp.models import ImportJob
-from import_export_stomp.tasks import run_import_job
+from import_export_stomp.admin_actions import run_export_job_action
+from import_export_stomp.models import ExportJob
 
 
 @pytest.fixture
@@ -22,25 +21,20 @@ def user():
 
 
 @pytest.fixture
-def import_job(user):
-    return ImportJob.objects.create(
-        model="ModelTest",
-        file="test.csv",
-        change_summary="Summary",
-        imported=True,
-        author=user,
-        updated_by=user,
+def export_job(user):
+    return ExportJob.objects.create(
+        app_label="app_label",
+        model="model",
+        queryset="[]",
+        site_of_origin="http://example.com",
     )
 
 
 @pytest.mark.django_db
-def test_run_import_job_action(admin_site, import_job, user):
-    admin = ImportJobAdmin(ImportJob, admin_site)
+def test_run_export_job_action(admin_site, export_job, user):
+    admin = ImportJobAdmin(ExportJob, admin_site)
 
     request = Mock(user=user)
 
-    admin_actions.run_import_job_action(
-        modeladmin=admin, request=request, queryset=[ImportJob.objects.all()]
-    )
-
-    run_import_job.delay.assert_called_once_with(import_job.pk, dry_run=False)
+    with pytest.raises(Exception):
+        run_export_job_action(modeladmin=admin, request=request, queryset=[export_job])
