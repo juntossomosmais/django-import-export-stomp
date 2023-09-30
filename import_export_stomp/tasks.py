@@ -11,7 +11,6 @@ from django.utils.translation import gettext_lazy as _
 
 from import_export_stomp.model_config import ModelConfig
 from import_export_stomp.utils import get_formats
-from import_export_stomp.utils import send_export_job_completion_mail
 
 logger = logging.getLogger(__name__)
 
@@ -221,6 +220,5 @@ def run_export_job(export_job):
     if not format.is_binary():
         serialized = serialized.encode("utf8")
     export_job.file.save(filename, ContentFile(serialized))
-    if export_job.email_on_completion:
-        send_export_job_completion_mail(export_job)
+
     return

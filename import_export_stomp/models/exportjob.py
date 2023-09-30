@@ -70,11 +70,6 @@ class ExportJob(models.Model):
         null=False,
     )
 
-    email_on_completion = models.BooleanField(
-        verbose_name=_("Send me an email when this export job is complete"),
-        default=True,
-    )
-
     site_of_origin = models.TextField(
         verbose_name=_("Site of origin"),
         max_length=255,
