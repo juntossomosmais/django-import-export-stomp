@@ -16,7 +16,7 @@ from import_export_stomp.utils import send_export_job_completion_mail
 logger = logging.getLogger(__name__)
 
 
-importables = getattr(settings, "IMPORT_EXPORT_CELERY_MODELS", {})
+importables = getattr(settings, "IMPORT_EXPORT_STOMP_MODELS", {})
 
 
 def change_job_status(job, direction, job_status, dry_run=False):

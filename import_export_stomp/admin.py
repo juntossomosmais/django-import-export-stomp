@@ -30,7 +30,7 @@ class ImportJobForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["model"].choices = [
-            (x, x) for x in getattr(settings, "IMPORT_EXPORT_CELERY_MODELS", {}).keys()
+            (x, x) for x in getattr(settings, "IMPORT_EXPORT_STOMP_MODELS", {}).keys()
         ]
         self.fields["format"].widget = forms.Select(
             choices=self.instance.get_format_choices()

@@ -7,7 +7,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("import_export_celery", "0003_exportjob"),
+        ("import_export_stomp", "0003_exportjob"),
     ]
 
     operations = [
