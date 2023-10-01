@@ -210,7 +210,7 @@ def run_import_job(import_job: ImportJob, dry_run: bool = True):
         return
 
 
-def run_export_job(export_job: ExportJob):
+def run_export_job(export_job: ExportJob, **kwargs):
     logger.info("Exporting %s", export_job.pk)
     resource_class = export_job.get_resource_class()
     queryset = export_job.get_queryset()
