@@ -55,6 +55,8 @@ services:
     build: *dockerfile-dev-build
     volumes:
       - .:/app
+    environment:
+      - PYTHONPATH=.
     ports:
       - "${DJANGO_BIND_PORT:-8080}:${DJANGO_BIND_PORT:-8080}"
     depends_on:

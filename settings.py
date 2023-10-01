@@ -4,9 +4,10 @@ from logging import Formatter
 from pathlib import Path
 
 from import_export_stomp.apps import ImportExportStompConfig
+from import_export_stomp.utils import resource_importer
+from tests.resources.fake_app.apps import FakeAppConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -17,6 +18,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "author",
     ImportExportStompConfig.name,
+    FakeAppConfig.name,
 ]
 
 SITE_ID = 1
@@ -111,3 +113,13 @@ LOGGING = {
 
 
 USE_TZ = False
+
+IMPORT_EXPORT_STOMP_MODELS = {
+    "Test": {
+        "app_label": "fake_app",
+        "model_name": "FakeModel",
+        "resource": resource_importer(
+            "tests.resources.fake_app.resources.FakeResource"
+        ),
+    }
+}
