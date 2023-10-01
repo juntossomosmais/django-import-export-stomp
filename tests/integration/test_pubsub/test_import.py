@@ -19,7 +19,9 @@ class TestImport:
         )
 
     def test_should_import_to_model_dry_run(self, csv_file: ContentFile):
-        import_job = baker.make(ImportJob, file=csv_file, model="Test")
+        import_job = baker.make(
+            ImportJob, file=csv_file, model="Test", format="text/csv"
+        )
 
         assert FakeModel.objects.count() == 0
 
@@ -33,7 +35,8 @@ class TestImport:
         ack.assert_called_once()
 
         import_job.refresh_from_db()
-        assert "Import error" not in import_job.job_status
+        assert import_job.job_status == "[Dry run] 5/5 Import job finished"
+        assert import_job.imported is None
 
         assert FakeModel.objects.count() == 0
 
