@@ -1,6 +1,6 @@
-# Copyright (C) 2019 o.s. Auto*Mat
-
 import logging
+
+from functools import partial
 
 from author.decorators import with_author
 from django.conf import settings
@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from import_export.formats.base_formats import DEFAULT_FORMATS
 
 from import_export_stomp.fields import ImportExportFileField
-from import_export_stomp.tasks import run_import_job
+from import_export_stomp.utils import send_job_message_to_queue
 
 logger = logging.getLogger(__name__)
 
@@ -93,9 +93,11 @@ def importjob_post_save(sender, instance, **kwargs):
         instance.processing_initiated = timezone.now()
         instance.save()
         transaction.on_commit(
-            lambda: run_import_job.delay(
-                instance.pk,
+            partial(
+                send_job_message_to_queue,
+                action="import",
                 dry_run=getattr(settings, "IMPORT_DRY_RUN_FIRST_TIME", True),
+                job_id=instance.pk,
             )
         )
 
@@ -109,5 +111,5 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         try:
             instance.file.delete()
         except Exception as e:
-            logger.error(f"Some error occurred while deleting ImportJob file: {e}")
+            logger.error("Some error occurred while deleting ImportJob file: %s", e)
         ImportJob.objects.filter(id=instance.id).delete()
