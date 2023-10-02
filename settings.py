@@ -3,6 +3,8 @@ import os
 from logging import Formatter
 from pathlib import Path
 
+from import_export_stomp.apps import ImportExportStompConfig
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -13,6 +15,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.sites",
+    "author",
+    ImportExportStompConfig.name,
 ]
 
 SITE_ID = 1
@@ -32,6 +36,7 @@ MIDDLEWARE = (
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "author.middlewares.AuthorDefaultBackendMiddleware",
 )
 
 TEMPLATES = [

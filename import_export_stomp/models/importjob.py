@@ -13,8 +13,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from import_export.formats.base_formats import DEFAULT_FORMATS
 
-from ..fields import ImportExportFileField
-from ..tasks import run_import_job
+from import_export_stomp.fields import ImportExportFileField
+from import_export_stomp.tasks import run_import_job
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +75,7 @@ class ImportJob(models.Model):
     class Meta:
         verbose_name = _("Import job")
         verbose_name_plural = _("Import jobs")
+        app_label = "import_export_stomp"
 
     @staticmethod
     def get_format_choices():

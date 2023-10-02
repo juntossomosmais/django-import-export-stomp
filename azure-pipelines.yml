@@ -1,0 +1,26 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - import_export_stomp
+      - tests
+      - Dockerfile
+      - poetry.lock
+pr:
+  - main
+  - develop
+  - release/*
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: juntossomosmais/azure-pipelines-templates
+      endpoint: github.com
+      ref: main
+      PoetryVersion: 1.4.2
+
+extends:
+  template: python/library.yaml@templates
