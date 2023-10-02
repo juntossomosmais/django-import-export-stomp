@@ -15,7 +15,7 @@ from import_export.resources import ModelResource
 IMPORT_EXPORT_STOMP_PROCESSING_QUEUE = getattr(
     settings,
     "IMPORT_EXPORT_STOMP_PROCESSING_QUEUE",
-    "django-import-export-stomp-runner",
+    "/queue/django-import-export-stomp-runner",
 )
 
 
