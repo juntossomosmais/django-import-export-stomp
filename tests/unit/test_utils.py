@@ -28,20 +28,23 @@ class TestUtils:
 
 
 class TestSendMessageToQueue:
-    @pytest.mark.parametrize("action", ("import", "export"))
+    @pytest.mark.parametrize(
+        ("action", "dry_run"),
+        (("import", False), ("import", True), ("export", False), ("export", True)),
+    )
     def test_should_send_message_to_defult_queue(
-        self, action: str, mocker: MockerFixture
+        self, action: str, dry_run: bool, mocker: MockerFixture
     ):
         mocked_send = mocker.MagicMock()
         mocker.patch.object(
             import_export_stomp.utils, "build_publisher", return_value=mocked_send
         )
         job_id = 9999
-        send_job_message_to_queue(action, job_id)
+        send_job_message_to_queue(action, job_id, dry_run)
 
         mocked_send.send.assert_called_with(
             queue=IMPORT_EXPORT_STOMP_PROCESSING_QUEUE,
-            body={"action": action, "job_id": str(job_id)},
+            body={"action": action, "job_id": str(job_id), "dry_run": dry_run},
         )
 
 

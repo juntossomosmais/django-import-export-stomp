@@ -131,5 +131,5 @@ def exportjob_post_save(sender, instance, **kwargs):
         instance.processing_initiated = timezone.now()
         instance.save()
         transaction.on_commit(
-            partial(send_job_message_to_queue, action="import", job_id=instance.pk)
+            partial(send_job_message_to_queue, action="export", job_id=instance.pk)
         )
