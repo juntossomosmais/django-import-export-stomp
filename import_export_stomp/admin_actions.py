@@ -1,4 +1,5 @@
 import json
+import logging
 
 from uuid import UUID
 
@@ -7,14 +8,17 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from . import tasks
-from .models import ExportJob
+from import_export_stomp.models import ExportJob
+from import_export_stomp.tasks import run_export_job
+from import_export_stomp.tasks import run_import_job
+
+logger = logging.getLogger(__name__)
 
 
 def run_import_job_action(modeladmin, request, queryset):
     for instance in queryset:
-        tasks.logger.info("Importing %s dry-run: False" % (instance.pk))
-        tasks.run_import_job.delay(instance.pk, dry_run=False)
+        logger.info("Importing %s dry-run: False" % (instance.pk))
+        run_import_job.delay(instance.pk, dry_run=False)
 
 
 run_import_job_action.short_description = _("Perform import")  # type: ignore
@@ -22,8 +26,8 @@ run_import_job_action.short_description = _("Perform import")  # type: ignore
 
 def run_import_job_action_dry(modeladmin, request, queryset):
     for instance in queryset:
-        tasks.logger.info("Importing %s dry-run: True" % (instance.pk))
-        tasks.run_import_job.delay(instance.pk, dry_run=True)
+        logger.info("Importing %s dry-run: True" % (instance.pk))
+        run_import_job.delay(instance.pk, dry_run=True)
 
 
 run_import_job_action_dry.short_description = _("Perform dry import")  # type: ignore
@@ -33,7 +37,7 @@ def run_export_job_action(modeladmin, request, queryset):
     for instance in queryset:
         instance.processing_initiated = timezone.now()
         instance.save()
-        tasks.run_export_job.delay(instance.pk)
+        run_export_job.delay(instance.pk)
 
 
 run_export_job_action.short_description = _("Run export job")  # type: ignore
