@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 
 from typing import List
+from logging import Formatter
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,9 +41,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "winners",
-    "import_export_stomp",
+    "django_stomp",
     "import_export",
+    "import_export_stomp",
+    "winners",
 ]
 
 MIDDLEWARE = [
@@ -52,6 +55,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "author.middlewares.AuthorDefaultBackendMiddleware",
 ]
 
 ROOT_URLCONF = "winners.urls"
@@ -81,13 +85,13 @@ REDIS_URL = os.environ.get("REDIS_URL", "redis://redis")
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.environ.get("DATABASE_NAME", "pguser"),
-        "USER": os.environ.get("DATABASE_USER", "pguser"),
-        "PASSWORD": os.environ.get("DATABASE_PASSWORD", "foobar"),
-        "HOST": os.environ.get("DATABASE_HOST", "postgres"),
-        "PORT": os.environ.get("DATABASE_PORT", ""),
-    },
+        "ENGINE": os.getenv("DATABASE_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.getenv("DATABASE_NAME", f"{BASE_DIR}/db.sqlite3"),
+        "USER": os.environ.get("DATABASE_USER"),
+        "HOST": os.environ.get("DATABASE_HOST"),
+        "PORT": os.environ.get("DATABASE_PORT"),
+        "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
+    }
 }
 
 
@@ -131,15 +135,28 @@ STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR
 
+### LOGS
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "loggers": {
+        "stomp.py": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+    },
+}
+
+
 ### STOMP SETTINGS
 STOMP_LISTENER_CLIENT_ID = os.getenv("STOMP_LISTENER_CLIENT_ID")
 STOMP_SERVER_HOST = os.getenv("STOMP_SERVER_HOST")
 STOMP_SERVER_PORT = os.getenv("STOMP_SERVER_PORT")
-STOMP_SERVER_STANDBY_HOST = os.getenv("STOMP_SERVER_STANDBY_HOST")
-STOMP_SERVER_STANDBY_PORT = os.getenv("STOMP_SERVER_STANDBY_PORT")
 STOMP_SERVER_USER = os.getenv("STOMP_SERVER_USER")
 STOMP_SERVER_PASSWORD = os.getenv("STOMP_SERVER_PASSWORD")
-STOMP_USE_SSL = bool(os.getenv("STOMP_USE_SSL", True))
+STOMP_USE_SSL = bool(eval(os.getenv("STOMP_USE_SSL", "False")))
 STOMP_SERVER_VHOST = os.getenv("STOMP_SERVER_VHOST")
 STOMP_OUTGOING_HEARTBEAT = os.getenv("STOMP_OUTGOING_HEARTBEAT", 15000)
 STOMP_INCOMING_HEARTBEAT = os.getenv("STOMP_INCOMING_HEARTBEAT", 15000)

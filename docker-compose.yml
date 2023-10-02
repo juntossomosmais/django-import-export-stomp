@@ -49,7 +49,7 @@ services:
       [
         "python",
         "example/manage.py",
-        "pubsub"
+        "import_export_pubsub"
       ]
 
   example:

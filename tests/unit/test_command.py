@@ -3,7 +3,6 @@ import django_stomp.management.commands.pubsub
 from django.core.management import call_command
 from pytest_mock import MockerFixture
 
-from import_export_stomp.management.commands.pubsub import Command
 from import_export_stomp.utils import IMPORT_EXPORT_STOMP_PROCESSING_QUEUE
 
 
