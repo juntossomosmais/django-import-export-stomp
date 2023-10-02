@@ -76,4 +76,4 @@ def create_export_job_action(modeladmin, request, queryset):
     return redirect(rurl)
 
 
-create_export_job_action.short_description = _("Export with celery")  # type: ignore
+create_export_job_action.short_description = _("Export with stomp")  # type: ignore

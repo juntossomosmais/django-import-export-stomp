@@ -33,10 +33,30 @@ services:
       timeout: 5s
       retries: 5
 
+  pubsub:
+    build: *dockerfile-dev-build
+    volumes:
+      - .:/app
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
+    command:
+      [
+        "python",
+        "example/manage.py",
+        "pubsub"
+      ]
+
   example:
     build: *dockerfile-dev-build
     volumes:
       - .:/app
+    env_file: .env
     ports:
       - "${DJANGO_BIND_PORT:-8080}:${DJANGO_BIND_PORT:-8080}"
     depends_on:

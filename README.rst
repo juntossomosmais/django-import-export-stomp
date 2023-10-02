@@ -12,8 +12,13 @@ Basic installation
 
 3. Add ``'author.middlewares.AuthorDefaultBackendMiddleware'`` to your ``MIDDLEWARE_CLASSES``
 
+How to run Example app
+----------------------
 
-Setting up imports with celery
+1. `docker-compose up example`
+
+
+Setting up imports with stomp
 ------------------------------
 
 A fully configured example project can be found in the example directory of this repository.
@@ -133,7 +138,7 @@ As with imports, a fully configured example project can be found in the `example
 4. Done!
 
 
-Performing exports with celery
+Performing exports with stomp
 ------------------------------
 
 1. Perform the basic setup procedure described in the first section.

@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "winners",
-    "import_export_celery",
+    "import_export_stomp",
     "import_export",
 ]
 
@@ -131,9 +131,31 @@ STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR
 
-IMPORT_EXPORT_CELERY_MODELS = {
+### STOMP SETTINGS
+STOMP_LISTENER_CLIENT_ID = os.getenv("STOMP_LISTENER_CLIENT_ID")
+STOMP_SERVER_HOST = os.getenv("STOMP_SERVER_HOST")
+STOMP_SERVER_PORT = os.getenv("STOMP_SERVER_PORT")
+STOMP_SERVER_STANDBY_HOST = os.getenv("STOMP_SERVER_STANDBY_HOST")
+STOMP_SERVER_STANDBY_PORT = os.getenv("STOMP_SERVER_STANDBY_PORT")
+STOMP_SERVER_USER = os.getenv("STOMP_SERVER_USER")
+STOMP_SERVER_PASSWORD = os.getenv("STOMP_SERVER_PASSWORD")
+STOMP_USE_SSL = bool(os.getenv("STOMP_USE_SSL", True))
+STOMP_SERVER_VHOST = os.getenv("STOMP_SERVER_VHOST")
+STOMP_OUTGOING_HEARTBEAT = os.getenv("STOMP_OUTGOING_HEARTBEAT", 15000)
+STOMP_INCOMING_HEARTBEAT = os.getenv("STOMP_INCOMING_HEARTBEAT", 15000)
+
+### AWS STORAGE
+IMPORT_EXPORT_STOMP_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+AWS_ACCESS_KEY_ID = "minioadmin"
+AWS_SECRET_ACCESS_KEY = "minioadmin"
+AWS_DEFAULT_REGION = "us-east-1"
+AWS_STORAGE_BUCKET_NAME = "example"
+AWS_S3_FILE_OVERWRITE = False
+AWS_S3_ENDPOINT_URL = "http://minio:9000"
+
+
+### DJANGO IMPORT EXPORT STOMP
+IMPORT_EXPORT_STOMP_MODELS = {
     "Winner": {"app_label": "winners", "model_name": "Winner"}
 }
-
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-IMPORT_EXPORT_CELERY_STORAGE = "django.core.files.storage.FileSystemStorage"

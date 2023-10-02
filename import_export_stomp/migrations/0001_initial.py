@@ -8,7 +8,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -32,7 +31,7 @@ class Migration(migrations.Migration):
                     "file",
                     models.FileField(
                         max_length=255,
-                        upload_to="django-import-export-celery-import-jobs",
+                        upload_to="django-import-export-stomp-import-jobs",
                         verbose_name="File to be imported",
                     ),
                 ),
@@ -82,7 +81,7 @@ class Migration(migrations.Migration):
                     models.FileField(
                         blank=True,
                         null=True,
-                        upload_to="django-import-export-celery-import-change-summaries",
+                        upload_to="django-import-export-stomp-import-change-summaries",
                         verbose_name="Summary of changes made by this import",
                     ),
                 ),

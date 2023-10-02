@@ -24,7 +24,7 @@ class ExportJob(models.Model):
 
     file = ImportExportFileField(
         verbose_name=_("exported file"),
-        upload_to="django-import-export-celery-export-jobs",
+        upload_to="django-import-export-stomp-export-jobs",
         blank=False,
         null=False,
         max_length=255,

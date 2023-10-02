@@ -8,7 +8,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("import_export_stomp", "0002_auto_20190923_1132"),
@@ -31,7 +30,7 @@ class Migration(migrations.Migration):
                     "file",
                     models.FileField(
                         max_length=255,
-                        upload_to="django-import-export-celery-export-jobs",
+                        upload_to="django-import-export-stomp-export-jobs",
                         verbose_name="exported file",
                     ),
                 ),

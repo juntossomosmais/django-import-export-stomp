@@ -4,9 +4,9 @@ build/
 dist/
 *.sqlite3
 *__pycache__*
-example/django-import-export-celery-import-change-summaries/
-example/django-import-export-celery-import-jobs/
-example/django-import-export-celery-export-jobs/
+example/django-import-export-stomp-import-change-summaries/
+example/django-import-export-stomp-import-jobs/
+example/django-import-export-stomp-export-jobs/
 pyenv/
 django_import_export_stomp.egg-info/
 db/

@@ -5,4 +5,5 @@
 # -x Print commands and their arguments as they are executed.
 set -e
 
-echo "IMPLEMENT EXAMPLE"
+python example/manage.py migrate
+python example/manage.py runserver 0.0.0.0:${DJANGO_BIND_PORT:-8080}
