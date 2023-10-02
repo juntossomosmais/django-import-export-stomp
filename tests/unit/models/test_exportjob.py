@@ -9,7 +9,7 @@ from import_export_stomp.models.exportjob import ExportJob
 
 
 @pytest.fixture
-def export_job():
+def export_job() -> ExportJob:
     return ExportJob(
         app_label="import_export_stomp",
         model="ImportJob",
@@ -20,7 +20,7 @@ def export_job():
 
 @pytest.mark.django_db
 class TestExportJobModel:
-    def test_exportjob_post_save_signal_handler(self):
+    def test_exportjob_post_save_signal_handler(self) -> None:
         export_job = ExportJob(
             file="test_file.csv", format="CSV", resource="TestResource"
         )
@@ -28,7 +28,7 @@ class TestExportJobModel:
 
         assert export_job.processing_initiated is not None
 
-    def test_get_content_type(self, export_job):
+    def test_get_content_type(self, export_job: ExportJob) -> None:
         with patch(
             "import_export_stomp.models.exportjob.ContentType.objects.get"
         ) as mock_get_content_type:
@@ -40,7 +40,7 @@ class TestExportJobModel:
         )
         assert content_type is mock_get_content_type.return_value
 
-    def test_get_queryset_custom_resource(self, export_job):
+    def test_get_queryset_custom_resource(self, export_job: ExportJob) -> None:
         export_job.resource = "sample_resource"
 
         with patch.object(
@@ -55,7 +55,7 @@ class TestExportJobModel:
 
         mock_get_resource_class.assert_called_once()
 
-    def test_get_queryset_default_resource(self, export_job):
+    def test_get_queryset_default_resource(self, export_job: ExportJob) -> None:
         export_job.resource = ""
         with patch(
             "import_export_stomp.models.exportjob.ExportJob.get_resource_class"

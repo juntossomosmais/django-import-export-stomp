@@ -1,5 +1,6 @@
 import contextlib
 
+from typing import Any
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -18,14 +19,14 @@ from import_export_stomp.utils import send_export_job_completion_mail
 
 
 @pytest.fixture
-def export_job_mail():
+def export_job_mail() -> Mock:
     return Mock(
         updated_by=Mock(email="test@example.com"),
     )
 
 
 @pytest.fixture
-def export_job():
+def export_job() -> ExportJob:
     return ExportJob(
         app_label="import_export_stomp",
         model="MyModel",
@@ -34,7 +35,7 @@ def export_job():
 
 
 @pytest.fixture
-def mock_get_template():
+def mock_get_template() -> Any:
     def mock_template_render(template_name, context=None):
         class MockTemplate:
             def render(self, context):
@@ -50,7 +51,7 @@ def mock_get_template():
 
 @pytest.mark.django_db
 class TestUtils:
-    def test_get_formats(self):
+    def test_get_formats(self) -> None:
         CSV = import_export.formats.base_formats.CSV
         XLSX = import_export.formats.base_formats.XLSX
         with contextlib.suppress(ImportError):
@@ -60,7 +61,7 @@ class TestUtils:
 
     @override_settings(EXPORT_JOB_COMPLETION_MAIL_TEMPLATE="test_template.html")
     @patch("import_export_stomp.utils.get_template")
-    def test_build_html_and_text_message(self, mock_get_template):
+    def test_build_html_and_text_message(self, mock_get_template) -> None:
         template_name = "test_template.html"
         context = {"key": "value"}
 
@@ -68,7 +69,7 @@ class TestUtils:
 
         mock_get_template.assert_called_once_with(template_name)
 
-    def test_get_export_job_mail_context(self, export_job):
+    def test_get_export_job_mail_context(self, export_job) -> None:
         with contextlib.suppress(ImportError):
             context = get_export_job_mail_context(export_job)
             assert "app_label" in context
@@ -81,13 +82,13 @@ class TestUtils:
     @override_settings(
         EXPORT_JOB_COMPLETION_MAIL_SUBJECT="Django: Export job completed"
     )
-    def test_get_export_job_mail_subject(self):
+    def test_get_export_job_mail_subject(self) -> None:
         with contextlib.suppress(ImportError):
             subject = get_export_job_mail_subject()
             assert subject == "Django: Export job completed"
 
     @override_settings(EXPORT_JOB_COMPLETION_MAIL_TEMPLATE="export_job_completion.html")
-    def test_get_export_job_mail_template(self):
+    def test_get_export_job_mail_template(self) -> None:
         with contextlib.suppress(ImportError):
             template = get_export_job_mail_template()
             assert template == "export_job_completion.html"
@@ -111,13 +112,13 @@ class TestUtils:
     )
     def test_send_export_job_completion_mail(
         self,
-        mock_subject,
-        mock_template,
-        mock_context,
-        mock_message,
-        mock_send_mail,
-        export_job_mail,
-    ):
+        mock_subject: Any,
+        mock_template: Any,
+        mock_context: Any,
+        mock_message: Any,
+        mock_send_mail: Any,
+        export_job_mail: Any,
+    ) -> None:
         send_export_job_completion_mail(export_job_mail)
 
         mock_subject.assert_called_once()

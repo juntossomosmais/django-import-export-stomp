@@ -16,12 +16,12 @@ def admin_site():
 
 
 @pytest.fixture
-def user():
+def user() -> User:
     return User.objects.create_user(username="testuser", password="testpassword")
 
 
 @pytest.fixture
-def export_job(user):
+def export_job(user) -> ExportJob:
     return ExportJob.objects.create(
         app_label="app_label",
         model="model",
@@ -31,10 +31,13 @@ def export_job(user):
 
 
 @pytest.mark.django_db
-def test_run_export_job_action(admin_site, export_job, user):
-    admin = ImportJobAdmin(ExportJob, admin_site)
+class TestAdminActions:
+    def test_run_export_job_action(self, admin_site, export_job, user):
+        admin = ImportJobAdmin(ExportJob, admin_site)
 
-    request = Mock(user=user)
+        request = Mock(user=user)
 
-    with pytest.raises(Exception):
-        run_export_job_action(modeladmin=admin, request=request, queryset=[export_job])
+        with pytest.raises(Exception):
+            run_export_job_action(
+                modeladmin=admin, request=request, queryset=[export_job]
+            )
