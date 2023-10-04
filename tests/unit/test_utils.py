@@ -6,7 +6,6 @@ import import_export
 import pytest
 
 from pytest_mock import MockerFixture
-from tests.utils import create_payload
 
 import import_export_stomp.utils
 
@@ -14,11 +13,12 @@ from import_export_stomp.utils import IMPORT_EXPORT_STOMP_PROCESSING_QUEUE
 from import_export_stomp.utils import get_formats
 from import_export_stomp.utils import resource_importer
 from import_export_stomp.utils import send_job_message_to_queue
+from tests.utils import create_payload
 
 
 @pytest.mark.django_db
 class TestUtils:
-    def test_get_formats(self):
+    def test_get_formats(self) -> None:
         CSV = import_export.formats.base_formats.CSV
         XLSX = import_export.formats.base_formats.XLSX
         with contextlib.suppress(ImportError):

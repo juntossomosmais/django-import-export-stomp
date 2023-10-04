@@ -1,3 +1,4 @@
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -15,13 +16,15 @@ class SampleResource(ModelResource):
 
 
 @pytest.fixture
-def resource():
+def resource() -> SampleResource:
     return SampleResource
 
 
 @pytest.mark.django_db
 class TestModelConfig:
-    def test_model_config_should_pass_when_resource_is_provided(self, resource):
+    def test_model_config_should_pass_when_resource_is_provided(
+        self, resource: SampleResource
+    ) -> None:
         app_label = "import_export_stomp"
         model_name = "ImportJob"
 
@@ -33,7 +36,7 @@ class TestModelConfig:
         assert isinstance(config.resource, SampleResource)
 
     @mock.patch("import_export_stomp.model_config.modelresource_factory")
-    def test_model_config_should_pass_with_none_resource(self, mocker):
+    def test_model_config_should_pass_with_none_resource(self, mocker: Any) -> None:
         app_label = "import_export_stomp"
         model_name = "ExportJob"
 

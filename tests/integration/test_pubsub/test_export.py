@@ -1,7 +1,7 @@
+import csv
 import json
 
 import pytest
-import csv
 
 from model_bakery import baker
 
