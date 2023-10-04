@@ -1,5 +1,4 @@
-Install
-=======
+# Install
 
 Launch docker-compose
 
@@ -40,8 +39,7 @@ Restart docker-compose
    docker-compose down
 
 
-Run
-===
+## Run
 
 Launch docker-compose
 

@@ -1,5 +1,6 @@
-# Copyright (C) 2019 o.s. Auto*Mat
 import json
+
+from functools import partial
 
 from author.decorators import with_author
 from django.contrib.contenttypes.models import ContentType
@@ -11,8 +12,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from import_export_stomp.fields import ImportExportFileField
-from import_export_stomp.tasks import run_export_job
 from import_export_stomp.utils import get_formats
+from import_export_stomp.utils import send_job_message_to_queue
 
 
 @with_author
@@ -129,4 +130,6 @@ def exportjob_post_save(sender, instance, **kwargs):
     if instance.resource and not instance.processing_initiated:
         instance.processing_initiated = timezone.now()
         instance.save()
-        transaction.on_commit(lambda: run_export_job.delay(instance.pk))
+        transaction.on_commit(
+            partial(send_job_message_to_queue, action="export", job_id=instance.pk)
+        )
