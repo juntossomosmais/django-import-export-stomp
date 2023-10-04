@@ -37,12 +37,12 @@ msgid "Run export job"
 msgstr "Hasi esportazio lana"
 
 #: import_export_stomp/admin_actions.py:67
-msgid "Export with celery"
-msgstr "Exportatu celery bidez"
+msgid "Export with stomp"
+msgstr "Exportatu stomp bidez"
 
 #: import_export_stomp/apps.py:7
-msgid "Import Export Celery"
-msgstr "Inportatu - Esportatu Celery bidez"
+msgid "Import Export Stomp"
+msgstr "Inportatu - Esportatu stomp bidez"
 
 #: import_export_stomp/models/exportjob.py:27
 msgid "exported file"

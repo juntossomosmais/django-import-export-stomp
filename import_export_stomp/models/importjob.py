@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class ImportJob(models.Model):
     file = ImportExportFileField(
         verbose_name=_("File to be imported"),
-        upload_to="django-import-export-celery-import-jobs",
+        upload_to="django-import-export-stomp-import-jobs",
         blank=False,
         null=False,
         max_length=255,
@@ -50,7 +50,7 @@ class ImportJob(models.Model):
 
     change_summary = ImportExportFileField(
         verbose_name=_("Summary of changes made by this import"),
-        upload_to="django-import-export-celery-import-change-summaries",
+        upload_to="django-import-export-stomp-import-change-summaries",
         blank=True,
         null=True,
     )
