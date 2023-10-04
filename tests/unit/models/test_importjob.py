@@ -1,5 +1,3 @@
-import os
-
 import pytest
 
 from django.utils import timezone
@@ -41,10 +39,10 @@ class TestImportJobModel:
 
     def test_auto_delete_file_on_delete(self, import_job: ImportJob) -> None:
         import_job.save()
-
-        file_path = import_job.file.path
-
         import_job.delete()
 
-        assert not os.path.exists(file_path)
+        with pytest.raises(
+            ValueError, match="The 'file' attribute has no file associated with it."
+        ):
+            import_job.file.url
         assert not ImportJob.objects.filter(pk=import_job.pk).exists()

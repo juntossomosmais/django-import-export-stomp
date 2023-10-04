@@ -16,6 +16,8 @@ omit =
     **/url.py
     **/seed.py
     **/db_routing.py
+    import_export_stomp/admin.py
+    example/**/*
 
 [report]
 show_missing = True

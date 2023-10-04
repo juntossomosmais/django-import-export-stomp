@@ -12,10 +12,9 @@ packages = [{ include = "import_export_stomp" }]
 [tool.poetry.dependencies]
 python = "^3.10"
 django = ">=3.2"
-django-stomp = ">=5.2"
+django-stomp = ">=5.3.1"
 django-author = "^1.2.0"
 django-import-export = "^3.3.1"
-html2text = "^2020.1.16"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -39,6 +38,8 @@ autoflake = "^1"
 pre-commit = "^2"
 #### Helpers and so on
 model-bakery = "^1.9.0"
+django-storages = "^1.14.1"
+boto3 = "^1.28.57"
 
 [build-system]
 requires = ["poetry-core"]

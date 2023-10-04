@@ -169,42 +169,6 @@ Define a custom storage backend by adding the `IMPORT_EXPORT_STOMP_STORAGE` to y
 
         IMPORT_EXPORT_STOMP_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
-Customizing email template for export job completion email
-----------------------------------------------------------
-
-By default this is the subject and template used to send the email
-
-
-    ::
-
-        Subject: 'Django: Export job completed'
-        Email template: 'email/export_job_completion.html'
-
-
-The default email template can be found `here <https://github.com/auto-mat/django-import-export-stomp/blob/master/import_export_STOMP/templates/email/export_job_completion.html>`__
-
-The default email subject and template can be customized by overriding these values from django settings:-
-
-
-    ::
-
-        EXPORT_JOB_COMPLETION_MAIL_SUBJECT="Your custom subject"
-        EXPORT_JOB_COMPLETION_MAIL_TEMPLATE="path_to_folder/your_custom_template.html"
-
-
-The email template will get some context variables that you can use to customize your template.
-
-
-    ::
-
-        {
-            export_job: The current instance of ExportJob model
-            app_label: export_job.app_label
-            model: export_job.model
-            link: A link to go to the export_job instance on django admin
-        }
-
-
 For developers of this library
 ------------------------------
 
@@ -213,4 +177,4 @@ TO BE INCLUDED
 Credits
 -------
 
-`django-import-export-stomp` was developed by the Czech non-profit `auto*mat z.s. <https://auto-mat.cz>`_.
+`django-import-export-stomp` was based on [django-import-export-celery](https://github.com/auto-mat/django-import-export-celery) developed by the Czech non-profit `auto*mat z.s. <https://auto-mat.cz>`_.

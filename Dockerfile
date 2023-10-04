@@ -21,5 +21,8 @@ COPY --chown=appuser poetry.lock pyproject.toml ./
 # Installs projects dependencies as a separate layer
 RUN poetry install --no-root
 
+# Temporary fix due to third party libraries having tests module
+RUN rm -rf ./venv/lib/python3.10/site-packages/tests
+
 # Copies and chowns for the userapp on a single layer
 COPY --chown=appuser . ./
