@@ -6,7 +6,7 @@ authors = [
     "Nilton Frederico Teixeira <9078708+niltonfrederico@users.noreply.github.com>",
 ]
 license = "MIT"
-readme = "README.rst"
+readme = "README.md"
 packages = [{ include = "import_export_stomp" }]
 
 [tool.poetry.dependencies]

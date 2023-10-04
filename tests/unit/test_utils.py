@@ -8,7 +8,7 @@ from import_export_stomp.utils import get_formats
 
 @pytest.mark.django_db
 class TestUtils:
-    def test_get_formats(self):
+    def test_get_formats(self) -> None:
         CSV = import_export.formats.base_formats.CSV
         XLSX = import_export.formats.base_formats.XLSX
         with contextlib.suppress(ImportError):
