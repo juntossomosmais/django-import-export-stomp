@@ -11,7 +11,7 @@ class TestCommand:
         mocked_start_processing = mocker.patch.object(
             django_stomp.management.commands.pubsub, "start_processing"
         )
-        call_command("pubsub")
+        call_command("import_export_pubsub")
 
         mocked_start_processing.assert_called_with(
             IMPORT_EXPORT_STOMP_PROCESSING_QUEUE, "import_export_stomp.pubsub.consumer"
