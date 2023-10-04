@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 
 from typing import List
-from logging import Formatter
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -135,7 +133,7 @@ STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR
 
-### LOGS
+# LOGS
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -150,7 +148,7 @@ LOGGING = {
 }
 
 
-### STOMP SETTINGS
+# STOMP SETTINGS
 STOMP_LISTENER_CLIENT_ID = os.getenv("STOMP_LISTENER_CLIENT_ID")
 STOMP_SERVER_HOST = os.getenv("STOMP_SERVER_HOST")
 STOMP_SERVER_PORT = os.getenv("STOMP_SERVER_PORT")
@@ -161,7 +159,7 @@ STOMP_SERVER_VHOST = os.getenv("STOMP_SERVER_VHOST")
 STOMP_OUTGOING_HEARTBEAT = os.getenv("STOMP_OUTGOING_HEARTBEAT", 15000)
 STOMP_INCOMING_HEARTBEAT = os.getenv("STOMP_INCOMING_HEARTBEAT", 15000)
 
-### AWS STORAGE
+# AWS STORAGE
 IMPORT_EXPORT_STOMP_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 AWS_ACCESS_KEY_ID = "minioadmin"
@@ -172,7 +170,7 @@ AWS_S3_FILE_OVERWRITE = False
 AWS_S3_ENDPOINT_URL = "http://minio:9000"
 
 
-### DJANGO IMPORT EXPORT STOMP
+# DJANGO IMPORT EXPORT STOMP
 IMPORT_EXPORT_STOMP_MODELS = {
     "Winner": {"app_label": "winners", "model_name": "Winner"}
 }
