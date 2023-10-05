@@ -1,15 +1,15 @@
-from http import HTTPStatus
 import json
-import os
 
+from http import HTTPStatus
+
+from botocore.client import Config
 from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpRequest
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from import_export_stomp.utils import get_formats
-from botocore.client import Config
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+from import_export_stomp.utils import get_formats
 
 
 @require_POST
@@ -24,7 +24,6 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
 
     try:
         import boto3
-        import storages
     except ImportError:
         return JsonResponse(
             {"error": "boto3 or django-storages required for this action."},
