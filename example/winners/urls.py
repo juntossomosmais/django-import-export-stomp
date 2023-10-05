@@ -23,8 +23,12 @@ from django.urls import URLPattern
 from django.urls import URLResolver
 from django.urls import path
 
-urlpatterns: Sequence[Union[URLResolver, URLPattern]] = [
-    path("admin/", admin.site.urls),
-] + static(
-    settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+from import_export_stomp.urls import urlpatterns as import_export_stomp_urlpatterns
+
+urlpatterns: Sequence[Union[URLResolver, URLPattern]] = (
+    [
+        path("admin/", admin.site.urls),
+    ]
+    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    + import_export_stomp_urlpatterns
 )  # type: ignore
