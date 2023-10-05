@@ -1,4 +1,5 @@
-# Copyright (C) 2019 o.s. Auto*Mat
+from typing import Any
+
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -8,6 +9,11 @@ from django.utils.translation import gettext_lazy as _
 from import_export_stomp import admin_actions
 from import_export_stomp.models import ExportJob
 from import_export_stomp.models import ImportJob
+from import_export_stomp.widgets import SignedUrlFileInput
+
+IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST = getattr(
+    settings, "IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST", False
+)
 
 
 class JobWithStatusMixin:
@@ -22,10 +28,27 @@ class JobWithStatusMixin:
 
 class ImportJobForm(forms.ModelForm):
     model = forms.ChoiceField(label=_("Name of model to import to"))
+    signed_url_file_key = forms.CharField(
+        max_length=255,
+        required=True,
+    )
 
     class Meta:
         model = ImportJob
-        fields = "__all__"
+        fields = [
+            "file",
+            "processing_initiated",
+            "imported",
+            "format",
+            "change_summary",
+            "errors",
+            "model",
+            "job_status",
+            "signed_url_file_key",
+        ]
+        widgets = {
+            "file": SignedUrlFileInput(attrs={"id": "signed_url_file_input"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,6 +58,16 @@ class ImportJobForm(forms.ModelForm):
         self.fields["format"].widget = forms.Select(
             choices=self.instance.get_format_choices()
         )
+        self.fields["signed_url_file_key"].widget.attrs["style"] = "display: none;"
+        self.fields["signed_url_file_key"].widget.attrs["readonly"] = True
+
+        if IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST and self.changed_data:
+            del self.fields["file"]
+
+    def save(self, commit: bool = True) -> Any:
+        if IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST:
+            self.instance.file = self.data["signed_url_file_key"]
+        return super().save(commit)
 
 
 @admin.register(ImportJob)

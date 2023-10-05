@@ -1,0 +1,76 @@
+{% include "django/forms/widgets/input.html" %}
+{% load settings %}
+{% csrf_token %}
+{% settings_value 'IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST' as IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+        const form = document.getElementById("importjob_form");
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            if ("{{ IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST }}" != "True") {
+                form.submit();
+                return;
+            }
+
+            const fileInput = document.getElementById("signed_url_file_input");
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+
+                try {
+                    const response = await fetch("{% url 'import_export_stomp_presigned_url' %}", {
+                        method: "POST",
+                        headers: { "X-CSRFToken": csrftoken },
+                        mode: "same-origin",
+                        body: JSON.stringify({
+                            filename: file.name,
+                            mimetype: file.type,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        const responseData = await response.json();
+
+                        var formData = new FormData();
+
+                        for (const key in responseData.fields) {
+                            formData.append(key, responseData.fields[key]);
+                        }
+                        formData.append("file", file);
+
+                        console.log(formData);
+
+                        const presigned_response = await fetch(responseData.url, {
+                            method: "POST",
+                            body: formData,
+                        });
+
+                        if (presigned_response.ok) {
+                            fileInput.remove();
+
+                            const signedUrlFileKey = document.getElementById("id_signed_url_file_key");
+                            signedUrlFileKey.type = "text";
+                            signedUrlFileKey.id = "signed_url_file_key";
+                            signedUrlFileKey.name = "signed_url_file_key";
+                            signedUrlFileKey.value = file.name;
+
+                            form.appendChild(signedUrlFileKey);
+
+                            form.submit();
+                        } else {
+                            console.log("Failed to upload file to S3");
+                        }
+                    } else {
+                        console.error("Failed to generate presigned URL");
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                }
+            } else {
+                console.error("No file selected");
+            }
+        });
+    });
+</script>

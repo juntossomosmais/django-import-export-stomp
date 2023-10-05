@@ -16,8 +16,6 @@ Including another URLconf
 from typing import Sequence
 from typing import Union
 
-from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import URLPattern
 from django.urls import URLResolver
@@ -25,10 +23,6 @@ from django.urls import path
 
 from import_export_stomp.urls import urlpatterns as import_export_stomp_urlpatterns
 
-urlpatterns: Sequence[Union[URLResolver, URLPattern]] = (
-    [
-        path("admin/", admin.site.urls),
-    ]
-    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    + import_export_stomp_urlpatterns
-)  # type: ignore
+urlpatterns: Sequence[Union[URLResolver, URLPattern]] = [
+    path("admin/", admin.site.urls),
+] + import_export_stomp_urlpatterns  # type: ignore
