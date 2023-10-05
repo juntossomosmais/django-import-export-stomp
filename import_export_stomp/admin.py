@@ -11,7 +11,6 @@ from import_export_stomp.models import ExportJob
 from import_export_stomp.models import ImportJob
 from import_export_stomp.widgets import SignedUrlFileInput
 
-
 IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST = getattr(
     settings, "IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST", False
 )
@@ -65,7 +64,7 @@ class ImportJobForm(forms.ModelForm):
         if IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST and self.changed_data:
             del self.fields["file"]
 
-    def save(self, commit: bool = ...) -> Any:
+    def save(self, commit: bool = True) -> Any:
         if IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST:
             self.instance.file = self.data["signed_url_file_key"]
         return super().save(commit)
