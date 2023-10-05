@@ -1,4 +1,3 @@
-# Copyright (C) 2019 o.s. Auto*Mat
 from django import forms
 from django.conf import settings
 from django.contrib import admin
@@ -8,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from import_export_stomp import admin_actions
 from import_export_stomp.models import ExportJob
 from import_export_stomp.models import ImportJob
+from import_export_stomp.widgets import SignedUrlFileInput
 
 
 class JobWithStatusMixin:
@@ -26,6 +26,9 @@ class ImportJobForm(forms.ModelForm):
     class Meta:
         model = ImportJob
         fields = "__all__"
+        widgets = {
+            "file": SignedUrlFileInput(attrs={"id": "signed_url_file_input"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
