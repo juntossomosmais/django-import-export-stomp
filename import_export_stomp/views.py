@@ -1,7 +1,7 @@
-import importlib
 import json
 
 from http import HTTPStatus
+from importlib import util
 
 import boto3
 
@@ -24,8 +24,8 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
             status=HTTPStatus.FAILED_DEPENDENCY,
         )
 
-    boto3_spec = importlib.util.find_spec("boto3")
-    storages_spec = importlib.util.find_spec("storages")
+    boto3_spec = util.find_spec("boto3")
+    storages_spec = util.find_spec("storages")
 
     if not boto3_spec and not storages_spec:
         return JsonResponse(
