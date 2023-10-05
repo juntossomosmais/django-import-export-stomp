@@ -50,7 +50,7 @@
                         if (presigned_response.ok) {
                             fileInput.remove();
 
-                            const signedUrlFileKey = document.createElement("input");
+                            const signedUrlFileKey = document.getElementById("id_signed_url_file_key");
                             signedUrlFileKey.type = "text";
                             signedUrlFileKey.id = "signed_url_file_key";
                             signedUrlFileKey.name = "signed_url_file_key";

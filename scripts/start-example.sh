@@ -6,5 +6,5 @@
 set -e
 
 python example/manage.py migrate
-python example/manage.py createsuperuser --noinput
+# python example/manage.py createsuperuser --noinput
 python example/manage.py runserver 0.0.0.0:${DJANGO_BIND_PORT:-8080}
