@@ -1,20 +1,22 @@
+import importlib
 import json
 
 from http import HTTPStatus
 
+import boto3
+
 from botocore.client import Config
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpRequest
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from import_export_stomp.utils import get_formats
 
 
 @require_POST
-# @staff_member_required
-@csrf_exempt
+@staff_member_required
 def generate_presigned_post(request: HttpRequest) -> JsonResponse:
     if not getattr(settings, "IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST"):
         return JsonResponse(
@@ -22,11 +24,12 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
             status=HTTPStatus.FAILED_DEPENDENCY,
         )
 
-    try:
-        import boto3
-    except ImportError:
+    boto3_spec = importlib.util.find_spec("boto3")
+    storages_spec = importlib.util.find_spec("storages")
+
+    if not boto3_spec and not storages_spec:
         return JsonResponse(
-            {"error": "boto3 or django-storages required for this action."},
+            {"error": "boto3 and django-storages required for this action."},
             status=HTTPStatus.FAILED_DEPENDENCY,
         )
 
@@ -35,10 +38,10 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
     filename, mimetype, allowed_formats = (
         data["filename"],
         data["mimetype"],
-        get_formats(),
+        [_format.CONTENT_TYPE for _format in get_formats()],
     )
 
-    if mimetype not in [_format.CONTENT_TYPE for _format in allowed_formats]:
+    if mimetype not in allowed_formats:
         return JsonResponse(
             {
                 "error": f"File format {mimetype} is not allowed. Accepted formats: {allowed_formats}"
