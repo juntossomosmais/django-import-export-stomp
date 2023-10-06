@@ -28,6 +28,7 @@ TLDR: Django plugin for file import/export on top of [django-import-export](http
   - [Testing the application with Docker](#testing-the-application-with-docker)
 - [Documentation](#documentation)
   - [Basic installation](#basic-installation)
+  - [Running the consumer](#running-the-consumer)
   - [Setting up imports](#setting-up-imports)
   - [Setting up export](#setting-up-export)
   - [How to use upload with aws s3 presigned url](#how-to-use-upload-with-aws-s3-presigned-url)
@@ -96,6 +97,10 @@ This section provides a high-level requirement & quick start guide.
 2. Add `import_export_stomp` to your `INSTALLED_APPS` in your `settings.py`
 3. Add `author.middlewares.AuthorDefaultBackendMiddleware` to your `MIDDLEWARE_CLASSES` in your `settings.py`
 4. Setup [django-stomp](https://github.com/juntossomosmais/django-stomp)
+
+### Running the consumer
+
+Run `python manage.py import_export pubsub` to start processing messages from the queues.
 
 ### Setting up imports
 
