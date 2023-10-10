@@ -180,7 +180,16 @@ As with imports, a fully configured example project can be found in the `example
 1. Have `boto3` and `django-storages` installed in your project: `pip install boto3 django-storages`
 2. Setup [django-storages](https://github.com/jschneier/django-storages) variables - `AWS_STORAGE_BUCKET_NAME` is required.
 3. Set `IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST` to `True`.
-4. Done!
+4. Add urls from `import_export_stomp.urls` to your `urls.py`
+
+    ```python
+    from import_export_stomp.urls import urlpatterns as import_export_stomp_urlpatterns
+
+    urlpatterns = [...]  # Your urls
+    urlpatterns += import_export_stomp_urlpatterns
+    ```
+
+5. Done!
 
 ### Performing an import
 
