@@ -10,7 +10,7 @@ readme = "README.md"
 packages = [{ include = "import_export_stomp" }]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.8,<4.0"
 django = ">=3.2"
 django-stomp = "*"
 django-author = "*"
