@@ -269,7 +269,7 @@ You will find an example django application that uses django-import-export-stomp
   Enables upload using presigned post url. Uses `boto3` and `django-storages`. Defaults to `False`.
 
 - `IMPORT_EXPORT_STOMP_PRESIGNED_POST_EXPIRATION`
-  Sets signed url expiration time. Defaults to `None`
+  Sets signed url expiration time. Defaults to `600`
 
 - `IMPORT_EXPORT_STOMP_PRESIGNED_FOLDER`
   Prepends a path to the s3 key. Defaults to `""`

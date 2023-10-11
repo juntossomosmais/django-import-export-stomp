@@ -61,9 +61,6 @@ class ImportJobForm(forms.ModelForm):
         self.fields["signed_url_file_key"].widget.attrs["style"] = "display: none;"
         self.fields["signed_url_file_key"].widget.attrs["readonly"] = True
 
-        if IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST and self.changed_data:
-            del self.fields["file"]
-
     def save(self, commit: bool = True) -> Any:
         if IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST:
             self.instance.file = self.data["signed_url_file_key"]

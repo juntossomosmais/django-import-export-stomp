@@ -63,7 +63,9 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
     response = client.generate_presigned_post(
         getattr(settings, "AWS_STORAGE_BUCKET_NAME"),
         file_path,
-        ExpiresIn=getattr(settings, "IMPORT_EXPORT_STOMP_PRESIGNED_POST_EXPIRATION"),
+        ExpiresIn=getattr(
+            settings, "IMPORT_EXPORT_STOMP_PRESIGNED_POST_EXPIRATION", 600
+        ),
     )
 
     return JsonResponse(response, status=HTTPStatus.CREATED)
