@@ -10,11 +10,11 @@ readme = "README.md"
 packages = [{ include = "import_export_stomp" }]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.8,<4.0"
 django = ">=3.2"
-django-stomp = ">=5.3.1"
-django-author = "^1.2.0"
-django-import-export = "^3.3.1"
+django-stomp = "*"
+django-author = "*"
+django-import-export = "*"
 
 
 [tool.poetry.group.dev.dependencies]
