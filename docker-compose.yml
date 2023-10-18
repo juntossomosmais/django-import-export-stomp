@@ -1,8 +1,7 @@
 version: "3.9"
 
 # https://docs.docker.com/compose/compose-file/compose-file-v3/#extension-fields
-x-build:
-  &dockerfile-dev-build
+x-build: &dockerfile-dev-build
   context: .
   dockerfile: Dockerfile
 
@@ -19,7 +18,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
+    networks:
+      - example
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -32,12 +32,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - example
 
   pubsub:
     build: *dockerfile-dev-build
     volumes:
       - .:/app
     env_file: .env
+    environment:
+      - AWS_S3_ENDPOINT_URL=http://minio:9000
     depends_on:
       db:
         condition: service_healthy
@@ -45,12 +49,9 @@ services:
         condition: service_healthy
       createbuckets:
         condition: service_completed_successfully
-    command:
-      [
-        "python",
-        "example/manage.py",
-        "import_export_pubsub"
-      ]
+    command: ["python", "example/manage.py", "import_export_pubsub"]
+    networks:
+      - example
 
   example:
     build: *dockerfile-dev-build
@@ -68,10 +69,9 @@ services:
         condition: service_healthy
       createbuckets:
         condition: service_completed_successfully
-    command:
-      [
-        "./scripts/start-example.sh"
-      ]
+    command: ["./scripts/start-example.sh"]
+    networks:
+      - example
 
   integration-tests:
     build: *dockerfile-dev-build
@@ -87,10 +87,9 @@ services:
         condition: service_healthy
       createbuckets:
         condition: service_completed_successfully
-    command:
-      [
-        "./scripts/start-tests.sh"
-      ]
+    command: ["./scripts/start-tests.sh"]
+    networks:
+      - example
 
   sonar:
     container_name: sonar
@@ -99,6 +98,8 @@ services:
       - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
     ports:
       - "9000:9000"
+    networks:
+      - example
 
   sonar-cli:
     container_name: sonar-cli
@@ -109,7 +110,9 @@ services:
       - SONAR_PASSWORD=test
     volumes:
       - .:/api
-    command: [ "sonar-scanner", "--debug" ]
+    command: ["sonar-scanner", "--debug"]
+    networks:
+      - example
 
   minio:
     image: minio/minio:latest
@@ -124,6 +127,8 @@ services:
       interval: 20s
       timeout: 10s
       retries: 3
+    networks:
+      - example
 
   createbuckets:
     image: minio/mc
@@ -140,6 +145,11 @@ services:
       /usr/bin/mc policy -r set download s3-folder/example;
       exit 0;
       "
+    networks:
+      - example
 
 volumes:
   s3-folder: null
+
+networks:
+  example:
