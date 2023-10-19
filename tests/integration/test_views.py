@@ -1,6 +1,5 @@
 import json
 
-from datetime import datetime
 from http import HTTPStatus
 from unittest.mock import ANY
 
@@ -10,6 +9,7 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 from model_bakery import baker
 from pytest_django.fixtures import SettingsWrapper
 from pytest_mock import MockerFixture
@@ -105,7 +105,7 @@ class TestGeneratePresignedPost:
             "fields": {
                 "key": settings.IMPORT_EXPORT_STOMP_PRESIGNED_FOLDER + FILENAME,
                 "x-amz-algorithm": "AWS4-HMAC-SHA256",
-                "x-amz-credential": f"minioadmin/{datetime.now().strftime('%Y%m%d')}/us-east-1/s3/aws4_request",
+                "x-amz-credential": f"minioadmin/{timezone.now().strftime('%Y%m%d')}/us-east-1/s3/aws4_request",
                 "x-amz-date": ANY,
                 "policy": ANY,
                 "x-amz-signature": ANY,

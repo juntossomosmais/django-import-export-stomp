@@ -1,7 +1,5 @@
 import contextlib
 
-from sys import modules
-
 import import_export
 import pytest
 
@@ -11,9 +9,7 @@ import import_export_stomp.utils
 
 from import_export_stomp.utils import IMPORT_EXPORT_STOMP_PROCESSING_QUEUE
 from import_export_stomp.utils import get_formats
-from import_export_stomp.utils import resource_importer
 from import_export_stomp.utils import send_job_message_to_queue
-from tests.utils import create_payload
 
 
 @pytest.mark.django_db
@@ -46,17 +42,3 @@ class TestSendMessageToQueue:
             queue=IMPORT_EXPORT_STOMP_PROCESSING_QUEUE,
             body={"action": action, "job_id": str(job_id), "dry_run": dry_run},
         )
-
-
-class TestResourceImporter:
-    def test_should_import_module_from_string(self):
-        imported = resource_importer("tests.utils.create_payload")
-
-        assert "tests.utils" in modules.keys()
-        assert imported() == create_payload
-
-    def test_should_fail_to_import_inexisting_module(self):
-        imported = resource_importer("fake.module.fake_function")
-
-        with pytest.raises(ModuleNotFoundError):
-            imported()

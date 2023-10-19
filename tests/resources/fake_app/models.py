@@ -1,6 +1,6 @@
 from django.db import models
 
-from import_export_stomp.utils import resource_importer
+from import_export_stomp.resources import resource_importer
 
 
 class FakeModel(models.Model):

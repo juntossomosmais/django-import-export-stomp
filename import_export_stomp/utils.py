@@ -1,7 +1,4 @@
-from importlib import import_module
-from typing import Callable
 from typing import Literal
-from typing import Type
 from typing import Union
 from uuid import uuid4
 
@@ -10,7 +7,6 @@ from django_stomp.builder import build_publisher
 from django_stomp.services.producer import auto_open_close_connection
 from django_stomp.services.producer import do_inside_transaction
 from import_export.formats.base_formats import DEFAULT_FORMATS
-from import_export.resources import ModelResource
 
 IMPORT_EXPORT_STOMP_PROCESSING_QUEUE = getattr(
     settings,
@@ -47,13 +43,3 @@ def send_job_message_to_queue(
             queue=IMPORT_EXPORT_STOMP_PROCESSING_QUEUE,
             body={"action": action, "job_id": str(job_id), "dry_run": dry_run},
         )
-
-
-def resource_importer(resource: str) -> Callable:
-    def main() -> Type[ModelResource]:
-        module, obj = resource.rsplit(".", 1)
-        imported_module = import_module(module)
-
-        return getattr(imported_module, obj)
-
-    return main

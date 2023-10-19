@@ -4,7 +4,7 @@ from logging import Formatter
 from pathlib import Path
 
 from import_export_stomp.apps import ImportExportStompConfig
-from import_export_stomp.utils import resource_importer
+from import_export_stomp.resources import resource_importer
 from tests.resources.fake_app.apps import FakeAppConfig
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -112,7 +112,7 @@ LOGGING = {
 }
 
 
-USE_TZ = False
+USE_TZ = True
 
 # STOMP SETTINGS
 STOMP_LISTENER_CLIENT_ID = os.getenv("STOMP_LISTENER_CLIENT_ID")

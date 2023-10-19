@@ -1,12 +1,26 @@
 import logging
 
+from importlib import import_module
+from typing import Callable
 from typing import Optional
+from typing import Type
 
 from django.apps import apps
+from import_export.resources import ModelResource
 from import_export.resources import Resource
 from import_export.resources import modelresource_factory
 
 logger = logging.getLogger(__name__)
+
+
+def resource_importer(resource: str) -> Callable:
+    def main() -> Type[ModelResource]:
+        module, obj = resource.rsplit(".", 1)
+        imported_module = import_module(module)
+
+        return getattr(imported_module, obj)
+
+    return main
 
 
 class ModelConfig:

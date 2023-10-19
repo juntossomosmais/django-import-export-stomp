@@ -1,9 +1,11 @@
 from typing import Any
+from typing import Optional
 
 from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.core.cache import cache
+from django.http.request import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
 from import_export_stomp import admin_actions
@@ -52,14 +54,27 @@ class ImportJobForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["model"].choices = [
-            (x, x) for x in getattr(settings, "IMPORT_EXPORT_STOMP_MODELS", {}).keys()
-        ]
-        self.fields["format"].widget = forms.Select(
-            choices=self.instance.get_format_choices()
-        )
-        self.fields["signed_url_file_key"].widget.attrs["style"] = "display: none;"
-        self.fields["signed_url_file_key"].widget.attrs["readonly"] = True
+
+        if not self.instance.pk:
+            self.fields["model"].choices = [
+                (x, x)
+                for x in getattr(settings, "IMPORT_EXPORT_STOMP_MODELS", {}).keys()
+            ]
+            self.fields["format"].widget = forms.Select(
+                choices=self.instance.get_format_choices()
+            )
+
+            self.fields["signed_url_file_key"].widget.attrs["style"] = "display: none;"
+            self.fields["signed_url_file_key"].widget.attrs["readonly"] = True
+
+        if (
+            IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST
+            and self.changed_data
+            and not self.instance.pk
+        ):
+            del self.fields["file"]
+        elif not IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST:
+            self.fields["signed_url_file_key"].required = False
 
     def save(self, commit: bool = True) -> Any:
         if IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST:
@@ -98,6 +113,11 @@ class ImportJobAdmin(JobWithStatusMixin, admin.ModelAdmin):
         admin_actions.run_import_job_action_dry,
     )
 
+    def has_change_permission(
+        self, request: HttpRequest, obj: Optional[ImportJob] = None
+    ) -> bool:
+        return False
+
 
 class ExportJobForm(forms.ModelForm):
     class Meta:
@@ -106,12 +126,13 @@ class ExportJobForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["resource"].widget = forms.Select(
-            choices=self.instance.get_resource_choices()
-        )
-        self.fields["format"].widget = forms.Select(
-            choices=self.instance.get_format_choices()
-        )
+        if not getattr(self.instance, "processing_initiated", True):
+            self.fields["resource"].widget = forms.Select(
+                choices=self.instance.get_resource_choices()
+            )
+            self.fields["format"].widget = forms.Select(
+                choices=self.instance.get_format_choices()
+            )
 
 
 @admin.register(ExportJob)
@@ -139,7 +160,17 @@ class ExportJobAdmin(JobWithStatusMixin, admin.ModelAdmin):
 
     list_filter = ("model",)
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(
+        self, request: HttpRequest, obj: Optional[ExportJob] = None
+    ) -> bool:
         return False
+
+    def has_change_permission(
+        self, request: HttpRequest, obj: Optional[ExportJob] = None
+    ) -> bool:
+        if getattr(obj, "processing_initiated", True):
+            return False
+
+        return True
 
     actions = (admin_actions.run_export_job_action,)
