@@ -107,7 +107,7 @@ Run `python manage.py import_export pubsub` to start processing messages from th
 On your settings.py add a `IMPORT_EXPORT_MODELS` variable:
 
 ```python
-from import_export_stomp.utils import resource_importer
+from import_export_stomp.resources import resource_importer
 
 IMPORT_EXPORT_STOMP_MODELS = {
     "Name of your import": {

@@ -12,9 +12,9 @@ from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
-from import_export_stomp.model_config import ModelConfig
 from import_export_stomp.models import ExportJob
 from import_export_stomp.models import ImportJob
+from import_export_stomp.resources import ModelConfig
 from import_export_stomp.utils import get_formats
 
 logger = logging.getLogger(__name__)

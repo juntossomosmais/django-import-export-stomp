@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-import-export-stomp"
-version = "0.1.3"
+version = "0.2.0"
 description = "Run django-import-export processes using django-stomp"
 authors = [
     "Nilton Frederico Teixeira <9078708+niltonfrederico@users.noreply.github.com>",
