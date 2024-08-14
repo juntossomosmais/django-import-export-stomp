@@ -1,8 +1,8 @@
 from django.conf import settings
-from import_export_stomp.utils import get_storage_class
 from django.test import override_settings
 
 from import_export_stomp.fields import ImportExportFileField
+from import_export_stomp.utils import get_storage_class
 
 
 class TestFields:
