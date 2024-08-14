@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.files.storage import get_storage_class
+from import_export_stomp.utils import get_storage_class
 from django.test import override_settings
 
 from import_export_stomp.fields import ImportExportFileField
