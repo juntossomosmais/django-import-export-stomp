@@ -25,7 +25,7 @@ repos:
         exclude: migrations/
 
   - repo: https://github.com/pycqa/autoflake
-    rev: v1.4
+    rev: v2.3.1
     hooks:
       - id: autoflake
         args:

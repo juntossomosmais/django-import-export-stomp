@@ -35,6 +35,6 @@ class UtilsTestCases(TestCase):
         expected_context = {
             "app_label": "winners",
             "model": "Winner",
-            "link": f"http://127.0.0.1:8000/adminimport_export_celery/exportjob/{export_job.id}/change/",
+            "link": f"http://127.0.0.1:8000/adminimport_export_celery/exportjob/{export_job.id}/change/",  # noqa
         }
         self.assertEqual(context, expected_context)

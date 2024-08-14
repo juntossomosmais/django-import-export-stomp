@@ -1,6 +1,7 @@
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.db import models
+
+from import_export_stomp.utils import get_storage_class
 
 
 class ImportExportFileField(models.FileField):
