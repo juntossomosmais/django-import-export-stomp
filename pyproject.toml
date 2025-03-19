@@ -15,6 +15,7 @@ django = ">=5.1"
 django-stomp = "*"
 django-author = "*"
 django-import-export = "*"
+tablib = {version = "*", extras = ["html", "ods", "xls", "xlsx", "yaml"]}
 
 
 [tool.poetry.group.dev.dependencies]
