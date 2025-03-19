@@ -1,3 +1,4 @@
+import importlib
 import json
 
 from http import HTTPStatus
@@ -11,14 +12,6 @@ from django.views.decorators.http import require_POST
 
 from import_export_stomp.utils import get_formats
 
-BOTO3_SPEC = util.find_spec("boto3")
-STORAGES_SPEC = util.find_spec("storages")
-
-if BOTO3_SPEC and STORAGES_SPEC:
-    import boto3
-
-    from botocore.config import Config
-
 
 @require_POST
 @staff_member_required
@@ -29,11 +22,21 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
             status=HTTPStatus.FAILED_DEPENDENCY,
         )
 
-    if not BOTO3_SPEC and not STORAGES_SPEC:
+    boto3_spec = util.find_spec("boto3")
+    storages_spec = util.find_spec("storages")
+
+    if not boto3_spec and not storages_spec:
         return JsonResponse(
             {"error": "boto3 and django-storages required for this action."},
             status=HTTPStatus.FAILED_DEPENDENCY,
         )
+
+    # Import boto3
+    boto3 = importlib.import_module("boto3")
+
+    # Import Config from botocore.config
+    botocore = importlib.import_module("botocore")
+    botocore_config = botocore.config.Config
 
     data = json.loads(request.body)
 
@@ -57,7 +60,7 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
         region_name=getattr(settings, "AWS_DEFAULT_REGION", None),
         aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
         aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", None),
-        config=Config(signature_version="s3v4"),
+        config=botocore_config(signature_version="s3v4"),
     )
 
     file_path = getattr(settings, "IMPORT_EXPORT_STOMP_PRESIGNED_FOLDER", "") + filename
