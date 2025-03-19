@@ -1,11 +1,9 @@
+import importlib
 import json
 
 from http import HTTPStatus
 from importlib import util
 
-import boto3
-
-from botocore.client import Config
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpRequest
@@ -33,6 +31,13 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
             status=HTTPStatus.FAILED_DEPENDENCY,
         )
 
+    # Import boto3
+    boto3 = importlib.import_module("boto3")
+
+    # Import Config from botocore.config
+    botocore = importlib.import_module("botocore")
+    botocore_config = botocore.config.Config
+
     data = json.loads(request.body)
 
     filename, mimetype, allowed_formats = (
@@ -55,7 +60,7 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
         region_name=getattr(settings, "AWS_DEFAULT_REGION", None),
         aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
         aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", None),
-        config=Config(signature_version="s3v4"),
+        config=botocore_config(signature_version="s3v4"),
     )
 
     file_path = getattr(settings, "IMPORT_EXPORT_STOMP_PRESIGNED_FOLDER", "") + filename

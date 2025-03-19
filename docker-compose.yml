@@ -7,7 +7,7 @@ x-build: &dockerfile-dev-build
 
 services:
   db:
-    image: postgres:12-alpine
+    image: postgres:16-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
@@ -22,7 +22,7 @@ services:
       - example
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:4-management
     ports:
       - 15672:15672
     volumes:
@@ -145,6 +145,14 @@ services:
       /usr/bin/mc policy -r set download s3-folder/example;
       exit 0;
       "
+    networks:
+      - example
+
+  lint-formatter:
+    build: *dockerfile-dev-build
+    volumes:
+      - .:/app
+    command: ["./scripts/start-formatter-lint.sh"]
     networks:
       - example
 

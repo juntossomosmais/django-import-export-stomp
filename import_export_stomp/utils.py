@@ -30,7 +30,7 @@ IMPORT_EXPORT_STOMP_EXCLUDED_FORMATS = getattr(
 )
 
 
-def get_storage_class(import_path: str = None) -> Type[Storage]:
+def get_storage_class(import_path: str | None = None) -> Type[Storage]:
     if USE_GET_STORAGE_CLASS:
         return legacy_get_storage_class(import_path)
     else:
