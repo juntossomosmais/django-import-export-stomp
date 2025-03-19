@@ -7,7 +7,7 @@ class Command(PubsubCommand):
     help = "Listens to queue to process messages"
 
     def add_arguments(self, parser):
-        ...
+        pass
 
     def handle(self, *args, **options):
         super().handle(

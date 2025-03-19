@@ -171,9 +171,11 @@ IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST = True
 
 AWS_S3_ENDPOINT_URL = os.getenv(
     "AWS_S3_ENDPOINT_URL",
-    "http://127.0.0.1:9000"
-    if IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST
-    else "http://minio:9000",
+    (
+        "http://127.0.0.1:9000"
+        if IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST
+        else "http://minio:9000"
+    ),
 )
 
 # DJANGO IMPORT EXPORT STOMP

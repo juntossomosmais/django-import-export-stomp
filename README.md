@@ -9,8 +9,8 @@
 [![Build Status](https://dev.azure.com/juntos-somos-mais-loyalty/python/_apis/build/status%2Fjuntossomosmais.django-import-export-stomp?repoName=juntossomosmais%2Fdjango-import-export-stomp&branchName=main)](https://dev.azure.com/juntos-somos-mais-loyalty/python/_build/latest?definitionId=474&repoName=juntossomosmais%2Fdjango-import-export-stomp&branchName=main)
 [![PyPI version](https://badge.fury.io/py/django-import-export-stomp.svg)](https://badge.fury.io/py/django-import-export-stomp)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
-[![Generic badge](https://img.shields.io/badge/python-_3.8_3.9_3.10_3.11-yellow.svg)](https://www.python.org/)
-[![Generic badge](https://img.shields.io/badge/django-3.2_4.0_4.1_4.2-yellow.svg)](https://www.djangoproject.com/)
+[![Generic badge](https://img.shields.io/badge/python-3.10_3.11-green.svg)](https://www.python.org/)
+[![Generic badge](https://img.shields.io/badge/django-5.1-green.svg)](https://www.djangoproject.com/)
 
 TLDR: Django plugin for file import/export on top of [django-import-export](https://github.com/django-import-export/django-import-export) using [django-stomp](https://github.com/juntossomosmais/django-stomp).
 
@@ -45,7 +45,7 @@ Django Import Export Stomp is a django plugin that uses [django-stomp](https://g
 
 ### The stack
 
-This application uses  at least [Python 3.8](https://www.python.org/downloads/release/python-38/) with at least [Django 3.2](https://docs.djangoproject.com/en/3.2/).
+This application uses  at least [Python 3.10](https://www.python.org/downloads/) with at least [Django 5.1](https://docs.djangoproject.com/en/5.1/).
 
 ### Engineering standards
 
