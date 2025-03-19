@@ -3,9 +3,6 @@ import json
 from http import HTTPStatus
 from importlib import util
 
-import boto3
-
-from botocore.client import Config
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpRequest
@@ -13,6 +10,14 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 from import_export_stomp.utils import get_formats
+
+BOTO3_SPEC = util.find_spec("boto3")
+STORAGES_SPEC = util.find_spec("storages")
+
+if BOTO3_SPEC and STORAGES_SPEC:
+    import boto3
+
+    from botocore.config import Config
 
 
 @require_POST
@@ -24,10 +29,7 @@ def generate_presigned_post(request: HttpRequest) -> JsonResponse:
             status=HTTPStatus.FAILED_DEPENDENCY,
         )
 
-    boto3_spec = util.find_spec("boto3")
-    storages_spec = util.find_spec("storages")
-
-    if not boto3_spec and not storages_spec:
+    if not BOTO3_SPEC and not STORAGES_SPEC:
         return JsonResponse(
             {"error": "boto3 and django-storages required for this action."},
             status=HTTPStatus.FAILED_DEPENDENCY,
