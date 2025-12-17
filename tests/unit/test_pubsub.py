@@ -147,15 +147,27 @@ class TestConsumer:
         ack.assert_called_once()
         nack.assert_not_called()
 
-    def test_consumer_should_raise_exception_if_job_does_not_exists(self):
+    @pytest.mark.parametrize(
+        argnames="param_action, param_log_message",
+        argvalues=(("import", "ImportJob"), ("export", "ExportJob")),
+    )
+    def test_consumer_should_raise_exception_if_job_does_not_exists(
+        self,
+        param_action: str,
+        param_log_message: str,
+        caplog: pytest.LogCaptureFixture,
+    ):
         payload, ack, nack = create_payload(
-            {"action": "import", "dry_run": True, "job_id": "9999"}
+            {"action": param_action, "dry_run": True, "job_id": "9999"}
         )
 
-        with pytest.raises(ImportJob.DoesNotExist):
-            consumer(payload)
+        consumer(payload)
 
-        ack.assert_not_called()
+        assert (
+            f"WARNING  import_export_stomp.pubsub:pubsub.py:59 {param_log_message} matching query does not exist.\n"
+            == caplog.text
+        )
+        ack.assert_called_once()
         nack.assert_not_called()
 
     @mock.patch.object(import_export_stomp.pubsub, "run_import_job")

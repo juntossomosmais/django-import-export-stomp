@@ -54,12 +54,12 @@ def consumer(payload: Payload):
 
     try:
         validate_payload(payload)
-    except AssertionError as exc:
+        job, runner = get_job_object_and_runner(payload)
+    except (AssertionError, ImportJob.DoesNotExist, ExportJob.DoesNotExist) as exc:
         logger.warning(str(exc))
         # Since the error is unrecoverable we will only ack
         return payload.ack()
 
-    job, runner = get_job_object_and_runner(payload)
     runner(job, dry_run=payload.body["dry_run"])
 
     return payload.ack()
