@@ -7,6 +7,9 @@ dist/
 example/django-import-export-stomp-import-change-summaries/
 example/django-import-export-stomp-import-jobs/
 example/django-import-export-stomp-export-jobs/
+django-import-export-stomp-import-change-summaries/
+django-import-export-stomp-import-jobs/
+django-import-export-stomp-export-jobs/
 pyenv/
 django_import_export_stomp.egg-info/
 db/
