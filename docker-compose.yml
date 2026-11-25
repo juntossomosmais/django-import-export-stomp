@@ -41,14 +41,14 @@ services:
       - .:/app
     env_file: .env
     environment:
-      - AWS_S3_ENDPOINT_URL=http://minio:9000
+      - AWS_S3_ENDPOINT_URL=http://s3mock:9090
     depends_on:
       db:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      createbuckets:
-        condition: service_completed_successfully
+      s3mock:
+        condition: service_healthy
     command: ["python", "example/manage.py", "import_export_pubsub"]
     networks:
       - example
@@ -67,8 +67,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      createbuckets:
-        condition: service_completed_successfully
+      s3mock:
+        condition: service_healthy
     command: ["./scripts/start-example.sh"]
     networks:
       - example
@@ -85,8 +85,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      createbuckets:
-        condition: service_completed_successfully
+      s3mock:
+        condition: service_healthy
     command: ["./scripts/start-tests.sh"]
     networks:
       - example
@@ -114,37 +114,17 @@ services:
     networks:
       - example
 
-  minio:
-    image: minio/minio:latest
+  s3mock:
+    image: adobe/s3mock:latest
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: example
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    command: minio server /s3-folder --console-address 0.0.0.0:9001
-    volumes:
-      - s3-folder:/s3-folder
+      - "9090:9090"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 20s
-      timeout: 10s
-      retries: 3
-    networks:
-      - example
-
-  createbuckets:
-    image: minio/mc
-    depends_on:
-      minio:
-        condition: service_healthy
-    volumes:
-      - s3-folder:/s3-folder
-    entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc config host add s3-folder http://minio:9000 root password;
-      /usr/bin/mc rm -r --force s3-folder/example;
-      /usr/bin/mc mb s3-folder/example;
-      /usr/bin/mc policy -r set download s3-folder/example;
-      exit 0;
-      "
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/favicon.ico"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - example
 
@@ -155,9 +135,6 @@ services:
     command: ["./scripts/start-formatter-lint.sh"]
     networks:
       - example
-
-volumes:
-  s3-folder: null
 
 networks:
   example:
