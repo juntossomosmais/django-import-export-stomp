@@ -37,6 +37,7 @@ class TestImport:
         import_job.refresh_from_db()
         assert import_job.job_status == "[Dry run] 5/5 Import job finished"
         assert import_job.imported is None
+        assert import_job.errors == ""
 
         assert FakeModel.objects.count() == 0
 
@@ -57,7 +58,9 @@ class TestImport:
         ack.assert_called_once()
 
         import_job.refresh_from_db()
-        assert "Import error" not in import_job.job_status
+        assert import_job.job_status == "5/5 Import job finished"
+        assert import_job.imported is not None
+        assert import_job.errors == ""
 
         assert FakeModel.objects.count() == 2
         row_1, row_2 = FakeModel.objects.order_by("id").all()
@@ -66,3 +69,27 @@ class TestImport:
         assert row_1.value == 1
         assert row_2.name == "name2"
         assert row_2.value == 2
+
+    def test_should_replace_previous_errors_when_dry_run_finishes(
+        self, csv_file: ContentFile
+    ):
+        import_job = baker.make(
+            ImportJob,
+            file=csv_file,
+            model="Test",
+            format="text/csv",
+            errors="error from a previous dry run",
+        )
+
+        payload, ack, nack = create_payload(
+            {"action": "import", "dry_run": True, "job_id": str(import_job.pk)}
+        )
+
+        consumer(payload)
+
+        nack.assert_not_called()
+        ack.assert_called_once()
+
+        import_job.refresh_from_db()
+        assert import_job.job_status == "[Dry run] 5/5 Import job finished"
+        assert import_job.errors == ""
