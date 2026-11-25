@@ -70,12 +70,10 @@ class TestImport:
         assert row_2.name == "name2"
         assert row_2.value == 2
 
-    def test_should_replace_previous_errors_when_dry_run_finishes(
-        self, csv_file: ContentFile
-    ):
+    def test_should_replace_previous_errors_when_dry_run_finishes(self):
         import_job = baker.make(
             ImportJob,
-            file=csv_file,
+            file=ContentFile(b"name,value\nname1,abc", name="import_csv.csv"),
             model="Test",
             format="text/csv",
             errors="error from a previous dry run",
@@ -92,4 +90,5 @@ class TestImport:
 
         import_job.refresh_from_db()
         assert import_job.job_status == "[Dry run] 5/5 Import job finished"
-        assert import_job.errors == ""
+        assert import_job.errors.startswith("Line: 1 - ")
+        assert "error from a previous dry run" not in import_job.errors

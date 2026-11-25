@@ -33,8 +33,8 @@ class TestChangeJobStatus:
 
         updates = [q["sql"] for q in queries if q["sql"].startswith("UPDATE")]
         assert len(updates) == 1
-        assert '"job_status"' in updates[0]
-        assert '"queryset"' not in updates[0]
+        set_clause = updates[0].split(" SET ")[1].split(" WHERE ")[0]
+        assert set_clause == f"\"job_status\" = '{expected_status}'"
 
         export_job.refresh_from_db()
         assert export_job.job_status == expected_status
