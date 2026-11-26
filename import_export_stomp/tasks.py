@@ -29,7 +29,7 @@ def change_job_status(job, direction, job_status, dry_run=False):
 
     cache.set(direction + "_job_status_%s" % job.pk, job_status)
     job.job_status = job_status
-    job.save()
+    job.save(update_fields=["job_status"])
 
 
 def get_format(job):

@@ -3,6 +3,8 @@ import json
 
 import pytest
 
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 
 from import_export_stomp.models import ExportJob
@@ -45,3 +47,46 @@ class TestExport:
             for index, dict_row in enumerate(csv_data):
                 dict_row["name"] = fake_models[index].name
                 dict_row["value"] = fake_models[index].value
+
+    def test_should_not_rewrite_queryset_on_each_status_update(self):
+        fake_models = baker.make(FakeModel, _quantity=100)
+
+        export_job = baker.make(
+            ExportJob,
+            format="text/csv",
+            app_label="fake_app",
+            model="fakemodel",
+            resource="FakeResource",
+            queryset=json.dumps([str(fake_model.pk) for fake_model in fake_models]),
+        )
+
+        payload, ack, nack = create_payload(
+            {"action": "export", "dry_run": False, "job_id": str(export_job.pk)}
+        )
+
+        with CaptureQueriesContext(connection) as queries:
+            consumer(payload)
+
+        nack.assert_not_called()
+        ack.assert_called_once()
+
+        job_updates = [
+            query["sql"]
+            for query in queries
+            if query["sql"].startswith('UPDATE "import_export_stomp_exportjob"')
+        ]
+        status_updates = [sql for sql in job_updates if '"file"' not in sql]
+        assert len(status_updates) == 7
+        assert all('"queryset"' not in sql for sql in status_updates)
+        assert len(job_updates) - len(status_updates) == 1
+
+        export_job.refresh_from_db()
+        assert export_job.job_status == "Export complete"
+
+        with export_job.file.open("r") as file:
+            csv_data = list(csv.DictReader(file))
+
+        assert len(csv_data) == 100
+        assert {row["name"] for row in csv_data} == {
+            fake_model.name for fake_model in fake_models
+        }
