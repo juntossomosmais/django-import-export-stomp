@@ -70,3 +70,16 @@ class TestExportJobModel:
 
         mock_get_resource_class.assert_called_once()
         mock_get_content_type.assert_called_once()
+
+    def test_get_resource_choices(self) -> None:
+        export_job = ExportJob(app_label="fake_app", model="fakemodel")
+
+        assert export_job.get_resource_choices() == [
+            ("FakeResource", "FakeModel resource")
+        ]
+
+    def test_get_format_choices(self) -> None:
+        format_choices = ExportJob.get_format_choices()
+
+        assert ("text/csv", "csv") in format_choices
+        assert all(isinstance(choice, tuple) for choice in format_choices)

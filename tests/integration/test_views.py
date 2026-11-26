@@ -53,6 +53,18 @@ class TestGeneratePresignedPost:
         assert response.status_code == HTTPStatus.FOUND
         assert "/admin/login" in response.url
 
+    def test_should_fail_if_presigned_post_is_disabled(
+        self, settings: SettingsWrapper, client: Client, endpoint: str
+    ):
+        settings.IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST = False
+
+        response = client.post(endpoint)
+
+        assert response.status_code == HTTPStatus.FAILED_DEPENDENCY
+        assert response.json() == {
+            "error": "IMPORT_EXPORT_STOMP_USE_PRESIGNED_POST is set to false."
+        }
+
     def test_should_fail_if_content_type_is_not_a_valid_spreadsheet(
         self, client: Client, endpoint: str
     ):
@@ -101,7 +113,7 @@ class TestGeneratePresignedPost:
 
         assert response.status_code == HTTPStatus.CREATED
         assert response.json() == {
-            "url": "http://minio:9000/example",
+            "url": "http://s3mock:9090/example",
             "fields": {
                 "key": settings.IMPORT_EXPORT_STOMP_PRESIGNED_FOLDER + FILENAME,
                 "x-amz-algorithm": "AWS4-HMAC-SHA256",

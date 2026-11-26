@@ -1,6 +1,8 @@
 import pytest
 
+from django.db.models.fields.files import FieldFile
 from django.utils import timezone
+from pytest_mock import MockerFixture
 
 from import_export_stomp.models import ImportJob
 
@@ -45,4 +47,19 @@ class TestImportJobModel:
             ValueError, match="The 'file' attribute has no file associated with it."
         ):
             import_job.file.url
+        assert not ImportJob.objects.filter(pk=import_job.pk).exists()
+
+    def test_should_delete_job_when_file_deletion_fails(
+        self, import_job: ImportJob, mocker: MockerFixture
+    ) -> None:
+        error = Exception("storage unavailable")
+        mocker.patch.object(FieldFile, "delete", side_effect=error)
+        mock_logger = mocker.patch("import_export_stomp.models.importjob.logger")
+        import_job.save()
+
+        import_job.delete()
+
+        mock_logger.error.assert_called_once_with(
+            "Some error occurred while deleting ImportJob file: %s", error
+        )
         assert not ImportJob.objects.filter(pk=import_job.pk).exists()

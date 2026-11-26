@@ -8,3 +8,4 @@ class FakeResource(resources.ModelResource):
         model = FakeModel
         fields = ("name", "value")
         import_id_fields = ("name",)
+        clean_model_instances = True
